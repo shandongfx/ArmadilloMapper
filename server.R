@@ -10,6 +10,8 @@ load("raw_data_clean/env")
 load("raw_data_clean/raw_prediction_peru") #  map_peru
 load("raw_data_clean/shp_peru") # Peru
 load("raw_data_clean/predicted_occ_train") 
+original_MTP <- min(predicted_occ_train)
+
 load("raw_data_clean/iucn")
 load("raw_data_clean/env_peru")
 flag_test=FALSE
@@ -232,35 +234,49 @@ shinyServer(function(input, output) {
       addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
     new_map
   })
+  plot_click_normal <- eventReactive(input$runrunrun, {
+    new_ped <- updatemap_click()
+    new_occ <- loadocc_click()
+    plot(new_ped,col="skyblue" ,legend=FALSE)
+    plot(Peru,add=T,col=NA,border="black")
+    plot(IUCN,add=T,col=NA,border="green")
+    plot(occ,add=T,col="black")
+    plot(new_occ,add=T,col="red")
+  })
+  output$newMap0 <- renderPlot({
+    plot_click_normal()
+  })
   
   output$newMap_leaf <- renderLeaflet({
     plot_click()
   })
   
-  output$newMap0 <- renderPlot({
-    if(input$runrunrun != 0 ){
-      new_ped <- updatemap_click()
-      new_occ <- loadocc_click()
-      plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
-      plot(Peru,add=T,col=NA,border="black")
-      plot(IUCN,add=T,col=NA,border="green")
-      plot(occ,add=T,col="black")
-      plot(new_occ,add=T,col="red")
-    }
-  })
+  # output$newMap0 <- renderPlot({
+  #   if(input$runrunrun != 0 ){
+  #     new_ped <- updatemap_click()
+  #     new_occ <- loadocc_click()
+  #     plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
+  #     plot(Peru,add=T,col=NA,border="black")
+  #     plot(IUCN,add=T,col=NA,border="green")
+  #     plot(occ,add=T,col="black")
+  #     plot(new_occ,add=T,col="red")
+  #   }
+  # })
 
  
   output$originalMap <- renderPlot({ 
-      plot(map_peru>=min(predicted_occ_train),col=c(NA,"skyblue") ,legend=FALSE)
-      plot(Peru,add=T,col=NA,border="black")
-      plot(IUCN,add=T,col=NA,border="green")
-      plot(occ,add=T,col="black")
+    mm <- map_peru
+    mm[mm<original_MTP] <- NA
+    plot(Peru,add=F,col=NA,border="black")
+    plot(mm,add=T,col="skyblue" ,legend=FALSE)
+    plot(IUCN,add=T,col=NA,border="green")
+      #plot(occ,add=T,col="black")
   })
   
   # default plot the old map
   output$originalMap_leaf <- renderLeaflet({
     mm <- map_peru
-    mm[mm<predicted_occ_train] <- NA
+    mm[mm<original_MTP] <- NA
     leaflet() %>%
       addTiles() %>%
       addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
