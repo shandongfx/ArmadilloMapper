@@ -11,34 +11,30 @@ library(shiny)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel(h1(em("Dasypus pilosus"), "niche mapper")),
+  titlePanel(h1(em("Dasypus pilosus's"), "potential distribution in Peru")),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(position = "left",
     sidebarPanel(
-      
-      textOutput("ttt"),
-      textOutput("sss"),
-      textOutput("error"),
-      actionButton("runrunrun", label = "runrunrun"),br(),
-      
+      #textOutput("ttt"),
+      #textOutput("sss"),
+      #actionButton("runrunrun", label = "runrunrun"),br(),
       img(src="dp_photo.jpg", height = 100, width = 200),
-      h4("Please provide your coordinates:"),
-
+      actionButton("runrunrun", label = "Update map"),
+      #helpText("Be patient after click this button."),
+      
+      h2("Please provide your coordinates:"),
+      h2(textOutput("error")),
+      
       tabsetPanel(id = "tabs",
         tabPanel("Manual input",id="man",
                  #textInput("lon",label="Longitude",value = ""),
                  #textInput("lat",label="Latitude",value = ""),
                  numericInput("lon", "Longitude:", -999, min = -180, max = 180),
                  numericInput("lat", "Latitude:", -999, min = -90, max = 90),
-                 #br(),
-                 textOutput("results_check"),
                  
                  br(),
-                 actionButton("runModel", label = "Update map"),br(),
-                 helpText("Be patient after click this button."),
                  br()
-                 
                  ), 
         tabPanel("Batch input",id="bat",
                  fileInput('file1', 'Choose CSV File',
@@ -57,13 +53,9 @@ shinyUI(fluidPage(
                                 'Double Quote'='"',
                                 'Single Quote'="'"),
                               '"'),
-                 textOutput("results_check2"),
                  br(),
-                 actionButton("runModel2", label = "Update map"),br(),
-                 helpText("Be patient after click this button."),br(),
-                 
+                 #actionButton("runModel2", label = "Update map"),br(),
                  tableOutput('contents'),
-                 #helpText("update the potential distribution map"),
                  br()
                  )
       )
@@ -82,17 +74,14 @@ shinyUI(fluidPage(
                           )
                  ),
                  tabPanel("Interactive map",
-                          leafletOutput("originalMap_leaf"),
-                          
-                          leafletOutput("newMap_leaf")
-                          # column(6,
-                          #        h4("The potential distribution from Feng et al. 2017:"),
-                          #        leafletOutput("originalMap_leaf"),
-                          # ),
-                          # column(6,
-                          #        h4("Your updated potential distribution:"),
-                          #        leafletOutput("newMap_leaf")
-                          # )
+                          column(6,
+                                 h4("The potential distribution from Feng et al. 2017:"),
+                                 leafletOutput("originalMap_leaf")
+                          ),
+                          column(6,
+                                 h4("Your updated potential distribution:"),
+                                 leafletOutput("newMap_leaf")
+                          )
                  )
 
                )
