@@ -15,20 +15,10 @@ shinyUI(fluidPage(
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(position = "left",
-    sidebarPanel(h4("Please provide your coordinates:"),
-                 
-                 
-                 
-                 img(src="dp_photo.jpg", height = 100, width = 200),
-                 
-                 
-                 
-                 
-      #sliderInput(
-      #            min = 5,
-      #            max = 50,
-      #            value = 30)
-    
+    sidebarPanel(
+      img(src="dp_photo.jpg", height = 100, width = 200),
+      h4("Please provide your coordinates:"),
+
       tabsetPanel(
         tabPanel("Manual input",
                  #textInput("lon",label="Longitude",value = ""),
@@ -40,7 +30,7 @@ shinyUI(fluidPage(
                  
                  br(),
                  actionButton("runModel", label = "Update map"),br(),
-                 #helpText("update the potential distribution map"),
+                 helpText("Be patient after click this button."),
                  br()
                  
                  ), 
@@ -64,6 +54,8 @@ shinyUI(fluidPage(
                  textOutput("results_check2"),
                  br(),
                  actionButton("runModel2", label = "Update map"),br(),
+                 helpText("Be patient after click this button."),br(),
+                 
                  tableOutput('contents'),
                  #helpText("update the potential distribution map"),
                  br()
@@ -74,23 +66,32 @@ shinyUI(fluidPage(
 
 
     # Show a plot of the generated distribution
-    mainPanel( 
-      h4("The potential distribution from Feng et al. 2017:"),
+    mainPanel(#width=6,
                tabsetPanel(
-                 
+                 tabPanel("Normal map",
+                          column(6,
+                                 h4("The potential distribution from Feng et al. 2017:"),
+                                 plotOutput("originalMap")
+                          ),
+                          column(6,
+                                 h4("Your updated potential distribution:"),
+                                 plotOutput("newMap0")
+                          )
+                 ),
                  tabPanel("Interactive map",
                           leafletOutput("originalMap_leaf"),
-                          h4("Your updated potential distribution:")
-                          #leafletOutput("newlMap_leaf"),
- 
-                 ),
-                 tabPanel("Normal map",
-                          plotOutput("originalMap"),
-                          h4("Your updated potential distribution:"),
-                          plotOutput("newMap0")
-                          #plotOutput("newMap1"),
-                          #plotOutput("newMap2")
+                          
+                          leafletOutput("newMap_leaf")
+                          # column(6,
+                          #        h4("The potential distribution from Feng et al. 2017:"),
+                          #        leafletOutput("originalMap_leaf"),
+                          # ),
+                          # column(6,
+                          #        h4("Your updated potential distribution:"),
+                          #        leafletOutput("newMap_leaf")
+                          # )
                  )
+
                )
                
     )

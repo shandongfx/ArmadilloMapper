@@ -12,11 +12,15 @@ library(raster)
 library(sp)
 load("raw_data_clean/occ")
 load("raw_data_clean/env")
-load("raw_data_clean/raw_prediction")
-load("raw_data_clean/predicted_occ_train")
+#load("raw_data_clean/raw_prediction")
+load("raw_data_clean/raw_prediction_peru") #  map_peru
+load("raw_data_clean/shp_peru") # Peru
+load("raw_data_clean/predicted_occ_train") 
 load("raw_data_clean/iucn")
+load("raw_data_clean/env_peru")
 flag_test=FALSE
 
+# function of checking data
 checkData <- function(in1,in2){
   if(in1 > 90 | in1 < -90 | in2 > 180 | in2 < -180 | is.na(in1) | is.na(in2)){
     "Please provide valid coordinates."
@@ -24,7 +28,7 @@ checkData <- function(in1,in2){
     NULL
   }
 }
-
+# function of checking data
 checkData2 <- function(in1,in2){
   for(i in length(in1)){
     if(in1[i] > 90 | in1[i] < -90 | 
@@ -38,7 +42,7 @@ checkData2 <- function(in1,in2){
   }
   return(check_report)
 }
-
+# function of selecting top contributing variables
 varContribution <- function (mod,contribution.index=0){
   t <- mod@results
   var.con <- t[ grep(pattern=".contribution",row.names(t) ) , 1]
@@ -46,6 +50,7 @@ varContribution <- function (mod,contribution.index=0){
   pre.var <- gsub(".contribution","",names(var.con.sub))
   return (pre.var)
 }
+# function of selecting variable based on correlation matrix
 filterVariables <- function(layers,pre.var= NULL,threshold ){
   #threshold=0.7
   #pre.var <- best_variables
@@ -86,8 +91,10 @@ filterVariables <- function(layers,pre.var= NULL,threshold ){
   
 }
 
+
 shinyServer(function(input, output) {
   
+  # show checked results
   output$contents <- renderTable({
     
     # input$file1 will be NULL initially. After the user selects
@@ -105,7 +112,17 @@ shinyServer(function(input, output) {
              quote=input$quote)
   })
   
+  # check manual input
+  output$results_check  <- renderText({
+    check_results()
+  })
   
+  #check upload input  
+  output$results_check2  <- renderText({
+    check_results2()
+  })
+  
+  # check manual input
   check_results <- eventReactive(input$runModel, {
     validate(
       checkData(input$lat,input$lon)
@@ -113,6 +130,7 @@ shinyServer(function(input, output) {
     )
   })
   
+  # check uploaded input
   check_results2 <- eventReactive(input$runModel2, {
     inFile <- input$file1
     
@@ -127,19 +145,20 @@ shinyServer(function(input, output) {
     )
   })
   
+  # make manual input occ spatial
   loadNewPresence <- eventReactive(input$runModel, {
     if(is.null(  checkData(input$lat,input$lon)) ){
       #update occ
-      Latitude=as.numeric(input$lat)
-      Longitude=as.numeric(input$lon)
-      newocc <- data.frame(Longitude,Latitude)
-      coordinates(newocc) <- ~ Longitude + Latitude
+      lat=as.numeric(input$lat)
+      lon=as.numeric(input$lon)
+      newocc <- data.frame(lon,lat)
+      coordinates(newocc) <- ~ lon + lat
       crs(newocc) <- crs(env)
       newocc
-      #occ <- newocc+occ
     }
   })
   
+  # make uplodaed occ spatial
   loadNewPresence2 <- eventReactive(input$runModel2, {
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
@@ -154,10 +173,10 @@ shinyServer(function(input, output) {
       coordinates(newocc) <- ~ lon + lat
       crs(newocc) <- crs(env)
       newocc
-      #occ <- newocc+occ
     }
   })
   
+  # update maxent model based on manual input
   updatemap <- eventReactive(input$runModel, {
     if(is.null(  checkData(input$lat,input$lon))){
       
@@ -195,12 +214,17 @@ shinyServer(function(input, output) {
     best_variables <- varContribution(fullM)
     selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
     updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
-    updatedMap_clamp <- predict(env_ext,updatedM)
+    updatedMap_clamp <- predict(env_peru,updatedM)
     new_map <- updatedMap_clamp
     predicted_occ_train <- extract(new_map,occ_unique)
-    new_map <- new_map>=min(predicted_occ_train,na.rm = T)
+    #new_map <- new_map>=min(predicted_occ_train,na.rm = T)
+    MTP <- min(predicted_occ_train,na.rm = T)
+    new_map[new_map<MTP] <- NA
+    new_map
     }
   })
+  
+  # update maxent model based on uploaded data
   updatemap2 <- eventReactive(input$runModel2, {
     inFile <- input$file1
     if (is.null(inFile)) return(NULL)
@@ -241,39 +265,41 @@ shinyServer(function(input, output) {
       best_variables <- varContribution(fullM)
       selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
       updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
-      updatedMap_clamp <- predict(env_ext,updatedM)
+      updatedMap_clamp <- predict(env_peru,updatedM)
       new_map <- updatedMap_clamp
       predicted_occ_train <- extract(new_map,occ_unique)
-      new_map <- new_map>=min(predicted_occ_train,na.rm = T)
+      #new_map <- new_map>=min(predicted_occ_train,na.rm = T)
+      MTP <- min(predicted_occ_train,na.rm = T)
+      new_map[new_map<MTP] <- NA
+      new_map
     }
   })
   
-  output$results_check  <- renderText({
-    check_results()
-  })
-    
-  output$results_check2  <- renderText({
-    check_results2()
-  })
   # default plot the old map
-  output$originalMap <- renderPlot({
-      plot(map>=min(predicted_occ_train))
+  output$originalMap <- renderPlot({ 
+      plot(map_peru>=min(predicted_occ_train),col=c(NA,"skyblue") ,legend=FALSE)
+      plot(Peru,add=T,col=NA,border="black")
+      plot(IUCN,add=T,col=NA,border="green")
       plot(occ,add=T,col="black")
   })
   
+  # default plot the old map
   output$originalMap_leaf <- renderLeaflet({
-    mm <- map
+    mm <- map_peru
     mm[mm<predicted_occ_train] <- NA
-    pal <- colorNumeric(c("red","green"), values(map),
-                        na.color = "transparent")
     leaflet() %>%
-    addTiles() %>%
-    addPolygons(data=IUCN,weight = 1, smoothFactor = 0.5,
-               opacity = 1, fillOpacity = 0) %>%
-    addMarkers(as.numeric(as.character(occ$Longitude)), as.numeric(as.character(occ$Latitude))) %>%
-    addRasterImage(mm, colors = pal, opacity = 0.5) %>%
-    addLegend(pal = pal, values = values(mm),
-             title = "Relative probability of presence")
+      addTiles() %>%
+      addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+                  opacity = 1, fillOpacity = 0) %>%
+      addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
+                  opacity = 1, fillOpacity = 0) %>%
+      #addMarkers(as.numeric(as.character(occ$Longitude)), as.numeric(as.character(occ$Latitude))) %>%
+      addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
+                       as.numeric(as.character(occ$Latitude)),
+                       color="black",
+                       radius=4,
+                       opacity = 0.6) %>%
+      addRasterImage(mm, colors = "skyblue", opacity = 0.9) 
   })
   
   
@@ -281,50 +307,68 @@ shinyServer(function(input, output) {
     if(input$runModel != 0 ){
       new_ped <- updatemap()
       new_occ <- loadNewPresence()
-      plot( new_ped )
+      plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
+      plot(Peru,add=T,col=NA,border="black")
+      plot(IUCN,add=T,col=NA,border="green")
       plot(occ,add=T,col="black")
       plot(new_occ,add=T,col="red")
     }
     if(input$runModel2 != 0){
       new_ped <- updatemap2()
       new_occ <- loadNewPresence2()
-      plot( new_ped )
+      plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
+      plot(Peru,add=T,col=NA,border="black")
+      plot(IUCN,add=T,col=NA,border="green")
       plot(occ,add=T,col="black")
       plot(new_occ,add=T,col="red")
     }
-    
   })
   
-  # output$newMap_leaf <- renderLeaflet({
-  #   if(input$runModel != 0 ){
-  #     new_ped <- updatemap()
-  #     new_occ <- loadNewPresence()
-  #     
-  #     mm <- new_ped
-  #     mm[mm<predicted_occ_train] <- NA
-  #     pal <- colorNumeric(c("red","green"), values(map),
-  #                         na.color = "transparent")
-  #     leaflet() %>%
-  #       addTiles() %>%
-  #       addPolygons(data=IUCN,weight = 1, smoothFactor = 0.5,
-  #                   opacity = 1, fillOpacity = 0) %>%
-  #       addMarkers(as.numeric(as.character(occ$Longitude)), as.numeric(as.character(occ$Latitude))) %>%
-  #       addRasterImage(mm, colors = pal, opacity = 0.5) %>%
-  #       addLegend(pal = pal, values = values(mm),
-  #                 title = "Relative probability of presence")
-  #     plot( new_ped )
-  #     plot(occ,add=T,col="black")
-  #     plot(new_occ,add=T,col="red")
-  #   }
-  #   if(input$runModel2 != 0){
-  #     new_ped <- updatemap2()
-  #     new_occ <- loadNewPresence2()
-  #     plot( new_ped )
-  #     plot(occ,add=T,col="black")
-  #     plot(new_occ,add=T,col="red")
-  #   }
-  # 
-  # })
+  output$newMap_leaf <- renderLeaflet({
+    if(input$runModel != 0 ){
+      new_ped <- updatemap()
+      new_occ <- loadNewPresence()
+
+      leaflet() %>%
+        addTiles() %>%
+        addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+                    opacity = 1, fillOpacity = 0) %>%
+        addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
+                    opacity = 1, fillOpacity = 0) %>%
+        addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
+                         as.numeric(as.character(occ$Latitude)),
+                         color="black",
+                         radius=4,
+                         opacity = 0.6) %>%
+        addCircleMarkers(coordinates(new_occ)[,1], 
+                         coordinates(new_occ)[,2],
+                         color="red",
+                         radius=4,
+                         opacity = 0.6) %>%
+        addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
+    }
+    if(input$runModel2 != 0){
+      new_ped <- updatemap2()
+      new_occ <- loadNewPresence2()
+      leaflet() %>%
+        addTiles() %>%
+        addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+                    opacity = 1, fillOpacity = 0) %>%
+        addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
+                    opacity = 1, fillOpacity = 0) %>%
+        addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
+                         as.numeric(as.character(occ$Latitude)),
+                         color="black",
+                         radius=4,
+                         opacity = 0.6) %>%
+        addCircleMarkers(coordinates(new_occ)[,1], 
+                         coordinates(new_occ)[,2],
+                         color="red",
+                         radius=4,
+                         opacity = 0.6) %>%
+        addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
+    }
+  })
 
 
 
