@@ -94,6 +94,41 @@ filterVariables <- function(layers,pre.var= NULL,threshold ){
 
 shinyServer(function(input, output) {
   
+  # check manual input
+  testoutput <- eventReactive(input$runrunrun, {
+    if(input$tabs=="Manual input"){
+      paste0("You are viewing tab \"", input$tabs, "\"")
+    } else
+    if(input$tabs=="Batch input"){
+      paste0("You are viewing tab \"", input$tabs, "\"")
+    }
+  })
+  output$sss  <- renderText({
+    testoutput()
+  })
+  checkocc_click <- eventReactive(input$runrunrun, {
+    if(input$tabs=="Manual input"){
+      validate(
+        checkData(input$lat,input$lon)
+      )
+    } else
+      if(input$tabs=="Batch input"){
+          inFile <- input$file1
+          
+          if (is.null(inFile))
+            return(NULL)
+          
+          upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
+                                 quote=input$quote)
+          validate(
+            checkData2(upload_occ$lat,upload_occ$lon)
+          )
+        }
+  })
+  
+  output$error  <- renderText({
+    checkocc_click()
+  })
   # show checked results
   output$contents <- renderTable({
     
@@ -112,75 +147,38 @@ shinyServer(function(input, output) {
              quote=input$quote)
   })
   
-  # check manual input
-  output$results_check  <- renderText({
-    check_results()
-  })
-  
-  #check upload input  
-  output$results_check2  <- renderText({
-    check_results2()
-  })
-  
-  # check manual input
-  check_results <- eventReactive(input$runModel, {
-    validate(
-      checkData(input$lat,input$lon)
-      #need(input$lat>-90,"errorrrrr")
-    )
-  })
-  
-  # check uploaded input
-  check_results2 <- eventReactive(input$runModel2, {
-    inFile <- input$file1
-    
-    if (is.null(inFile))
-      return(NULL)
-    
-    upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
-                           quote=input$quote)
-    validate(
-      checkData2(upload_occ$lat,upload_occ$lon)
-      #need(input$lat>-90,"errorrrrr")
-    )
-  })
-  
-  # make manual input occ spatial
-  loadNewPresence <- eventReactive(input$runModel, {
-    if(is.null(  checkData(input$lat,input$lon)) ){
-      #update occ
-      lat=as.numeric(input$lat)
-      lon=as.numeric(input$lon)
-      newocc <- data.frame(lon,lat)
-      coordinates(newocc) <- ~ lon + lat
-      crs(newocc) <- crs(env)
-      newocc
+  loadocc_click <- eventReactive(input$runrunrun, {
+    if(input$tabs=="Manual input"){
+      if(is.null(  checkData(input$lat,input$lon)) ){
+        #update occ
+        lat=as.numeric(input$lat)
+        lon=as.numeric(input$lon)
+        newocc <- data.frame(lon,lat)
+        coordinates(newocc) <- ~ lon + lat
+        crs(newocc) <- crs(env)
+        newocc
+      }
+    } else
+      if(input$tabs=="Batch input"){
+        inFile <- input$file1
+        if (is.null(inFile)) return(NULL)
+        upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
+                               quote=input$quote)
+        if(is.null(checkData2(upload_occ$lat,upload_occ$lon)) ){
+          #update occ
+          #Latitude=as.numeric(upload_occ$lat)
+          #Longitude=as.numeric(upload_occ$lon)
+          #newocc <- data.frame(Longitude,Latitude)
+          newocc <- upload_occ
+          coordinates(newocc) <- ~ lon + lat
+          crs(newocc) <- crs(env)
+          newocc
+        }
     }
+    
   })
-  
-  # make uplodaed occ spatial
-  loadNewPresence2 <- eventReactive(input$runModel2, {
-    inFile <- input$file1
-    if (is.null(inFile)) return(NULL)
-    upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
-                           quote=input$quote)
-    if(is.null(checkData2(upload_occ$lat,upload_occ$lon)) ){
-      #update occ
-      #Latitude=as.numeric(upload_occ$lat)
-      #Longitude=as.numeric(upload_occ$lon)
-      #newocc <- data.frame(Longitude,Latitude)
-      newocc <- upload_occ
-      coordinates(newocc) <- ~ lon + lat
-      crs(newocc) <- crs(env)
-      newocc
-    }
-  })
-  
-  # update maxent model based on manual input
-  updatemap <- eventReactive(input$runModel, {
-    if(is.null(  checkData(input$lat,input$lon))){
-      
-    new_occ <- loadNewPresence()
+  updatemap_click <- eventReactive(input$runrunrun, {
+    new_occ <- loadocc_click()
     occ_all <- occ + new_occ
     cell <- cellFromXY(env[[1]], occ_all)
     dup <- duplicated(cell)
@@ -205,12 +203,8 @@ shinyServer(function(input, output) {
     timestamp <- format(Sys.time(), "%Y%m%d_%H%M_")
     maxent_folder1 <- paste0(timestamp,"full")
     maxent_folder2 <- paste0(timestamp,"2nd")
-    
     fullM <- dismo::maxent(x=pder,p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder1),args=c("responsecurves"))
-    
-    
     # run 2nd model with fewer variables
-
     best_variables <- varContribution(fullM)
     selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
     updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
@@ -221,60 +215,209 @@ shinyServer(function(input, output) {
     MTP <- min(predicted_occ_train,na.rm = T)
     new_map[new_map<MTP] <- NA
     new_map
-    }
+  })
+  plot_click <- eventReactive(input$runrunrun, {
+    new_ped <- updatemap_click()
+    new_occ <- loadocc_click()
+    new_map <- leaflet() %>%
+      addTiles() %>%
+      addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+                  opacity = 1, fillOpacity = 0) %>%
+      addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
+                  opacity = 1, fillOpacity = 0) %>%
+      addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
+                       as.numeric(as.character(occ$Latitude)),
+                       color="black",
+                       radius=4,
+                       opacity = 0.6) %>%
+      addCircleMarkers(coordinates(new_occ)[,1], 
+                       coordinates(new_occ)[,2],
+                       color="red",
+                       radius=4,
+                       opacity = 0.6) %>%
+      addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
+    new_map
   })
   
-  # update maxent model based on uploaded data
-  updatemap2 <- eventReactive(input$runModel2, {
-    inFile <- input$file1
-    if (is.null(inFile)) return(NULL)
-    upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
-                           quote=input$quote)
-    if(is.null(checkData2(upload_occ$lat,upload_occ$lon)) ){
-      new_occ <- loadNewPresence2()
-      occ_all <- occ + new_occ
-      cell <- cellFromXY(env[[1]], occ_all)
-      dup <- duplicated(cell)
-      occ_unique <- occ_all[!dup,]
-      training_shp <-  buffer(occ_unique,2)
-      prjExtent<- extent(training_shp) 
-      prjExtent[1] <- -85
-      prjExtent[2] <- -68
-      prjExtent[3] <- -18
-      prjExtent[4] <- 0
-      env_ext <- crop(x = env,y = prjExtent )
-      env_train <- mask(env_ext,training_shp )
-      #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".tif",sep=""),format="GTiff",bylayer=T,overwrite=T)
-      #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".asc",sep=""),format="ascii",bylayer=T,overwrite=T)
-      if (ncell(env_train)>=10000) {bg_cell_num <- 10000} else bg_cell_num<- ncell(env_train)
-      bg <- sampleRandom(x=env_train,size=bg_cell_num,na.rm=T,sp=T)
-      # run full Maxent model
-      p <- extract(env_train,occ_unique)
-      a <- extract(env_train,bg)
-      pa <- c(rep(1,nrow(p)), rep(0,nrow(a)))
-      pder <- as.data.frame(rbind(p,a))
-      timestamp <- format(Sys.time(), "%Y%m%d_%H%M_")
-      maxent_folder1 <- paste0(timestamp,"full")
-      maxent_folder2 <- paste0(timestamp,"2nd")
-      
-      fullM <- dismo::maxent(x=pder,p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder1),args=c("responsecurves"))
-      
-      
-      # run 2nd model with fewer variables
-      
-      best_variables <- varContribution(fullM)
-      selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
-      updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
-      updatedMap_clamp <- predict(env_peru,updatedM)
-      new_map <- updatedMap_clamp
-      predicted_occ_train <- extract(new_map,occ_unique)
-      #new_map <- new_map>=min(predicted_occ_train,na.rm = T)
-      MTP <- min(predicted_occ_train,na.rm = T)
-      new_map[new_map<MTP] <- NA
-      new_map
-    }
+  output$newMap_leaf <- renderLeaflet({
+    plot_click()
   })
   
+  output$newMap0 <- renderPlot({
+    if(input$runrunrun != 0 ){
+      new_ped <- updatemap_click()
+      new_occ <- loadocc_click()
+      plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
+      plot(Peru,add=T,col=NA,border="black")
+      plot(IUCN,add=T,col=NA,border="green")
+      plot(occ,add=T,col="black")
+      plot(new_occ,add=T,col="red")
+    }
+  })
+
+  # # check manual input
+  # output$results_check  <- renderText({
+  #   check_results()
+  # })
+  # 
+  # #check upload input  
+  # output$results_check2  <- renderText({
+  #   check_results2()
+  # })
+  # 
+  # # check manual input
+  # check_results <- eventReactive(input$runModel, {
+  #   validate(
+  #     checkData(input$lat,input$lon)
+  #     #need(input$lat>-90,"errorrrrr")
+  #   )
+  # })
+  # 
+  # # check uploaded input
+  # check_results2 <- eventReactive(input$runModel2, {
+  #   inFile <- input$file1
+  #   
+  #   if (is.null(inFile))
+  #     return(NULL)
+  #   
+  #   upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
+  #                          quote=input$quote)
+  #   validate(
+  #     checkData2(upload_occ$lat,upload_occ$lon)
+  #     #need(input$lat>-90,"errorrrrr")
+  #   )
+  # })
+  # 
+  # make manual input occ spatial
+  # loadNewPresence <- eventReactive(input$runModel, {
+  #   if(is.null(  checkData(input$lat,input$lon)) ){
+  #     #update occ
+  #     lat=as.numeric(input$lat)
+  #     lon=as.numeric(input$lon)
+  #     newocc <- data.frame(lon,lat)
+  #     coordinates(newocc) <- ~ lon + lat
+  #     crs(newocc) <- crs(env)
+  #     newocc
+  #   }
+  # })
+  # 
+  # # make uplodaed occ spatial
+  # loadNewPresence2 <- eventReactive(input$runModel2, {
+  #   inFile <- input$file1
+  #   if (is.null(inFile)) return(NULL)
+  #   upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
+  #                          quote=input$quote)
+  #   if(is.null(checkData2(upload_occ$lat,upload_occ$lon)) ){
+  #     #update occ
+  #     #Latitude=as.numeric(upload_occ$lat)
+  #     #Longitude=as.numeric(upload_occ$lon)
+  #     #newocc <- data.frame(Longitude,Latitude)
+  #     newocc <- upload_occ
+  #     coordinates(newocc) <- ~ lon + lat
+  #     crs(newocc) <- crs(env)
+  #     newocc
+  #   }
+  # })
+  # 
+  # # update maxent model based on manual input
+  # updatemap <- eventReactive(input$runModel, {
+  #   if(is.null(  checkData(input$lat,input$lon))){
+  #     
+  #   new_occ <- loadNewPresence()
+  #   occ_all <- occ + new_occ
+  #   cell <- cellFromXY(env[[1]], occ_all)
+  #   dup <- duplicated(cell)
+  #   occ_unique <- occ_all[!dup,]
+  #   training_shp <-  buffer(occ_unique,2)
+  #   prjExtent<- extent(training_shp) 
+  #   prjExtent[1] <- -85
+  #   prjExtent[2] <- -68
+  #   prjExtent[3] <- -18
+  #   prjExtent[4] <- 0
+  #   env_ext <- crop(x = env,y = prjExtent )
+  #   env_train <- mask(env_ext,training_shp )
+  #   #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".tif",sep=""),format="GTiff",bylayer=T,overwrite=T)
+  #   #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".asc",sep=""),format="ascii",bylayer=T,overwrite=T)
+  #   if (ncell(env_train)>=10000) {bg_cell_num <- 10000} else bg_cell_num<- ncell(env_train)
+  #   bg <- sampleRandom(x=env_train,size=bg_cell_num,na.rm=T,sp=T)
+  #   # run full Maxent model
+  #   p <- extract(env_train,occ_unique)
+  #   a <- extract(env_train,bg)
+  #   pa <- c(rep(1,nrow(p)), rep(0,nrow(a)))
+  #   pder <- as.data.frame(rbind(p,a))
+  #   timestamp <- format(Sys.time(), "%Y%m%d_%H%M_")
+  #   maxent_folder1 <- paste0(timestamp,"full")
+  #   maxent_folder2 <- paste0(timestamp,"2nd")
+  #   
+  #   fullM <- dismo::maxent(x=pder,p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder1),args=c("responsecurves"))
+  #   
+  #   
+  #   # run 2nd model with fewer variables
+  # 
+  #   best_variables <- varContribution(fullM)
+  #   selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
+  #   updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
+  #   updatedMap_clamp <- predict(env_peru,updatedM)
+  #   new_map <- updatedMap_clamp
+  #   predicted_occ_train <- extract(new_map,occ_unique)
+  #   #new_map <- new_map>=min(predicted_occ_train,na.rm = T)
+  #   MTP <- min(predicted_occ_train,na.rm = T)
+  #   new_map[new_map<MTP] <- NA
+  #   new_map
+  #   }
+  # })
+  # 
+  # # update maxent model based on uploaded data
+  # updatemap2 <- eventReactive(input$runModel2, {
+  #   inFile <- input$file1
+  #   if (is.null(inFile)) return(NULL)
+  #   upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
+  #                          quote=input$quote)
+  #   if(is.null(checkData2(upload_occ$lat,upload_occ$lon)) ){
+  #     new_occ <- loadNewPresence2()
+  #     occ_all <- occ + new_occ
+  #     cell <- cellFromXY(env[[1]], occ_all)
+  #     dup <- duplicated(cell)
+  #     occ_unique <- occ_all[!dup,]
+  #     training_shp <-  buffer(occ_unique,2)
+  #     prjExtent<- extent(training_shp) 
+  #     prjExtent[1] <- -85
+  #     prjExtent[2] <- -68
+  #     prjExtent[3] <- -18
+  #     prjExtent[4] <- 0
+  #     env_ext <- crop(x = env,y = prjExtent )
+  #     env_train <- mask(env_ext,training_shp )
+  #     #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".tif",sep=""),format="GTiff",bylayer=T,overwrite=T)
+  #     #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".asc",sep=""),format="ascii",bylayer=T,overwrite=T)
+  #     if (ncell(env_train)>=10000) {bg_cell_num <- 10000} else bg_cell_num<- ncell(env_train)
+  #     bg <- sampleRandom(x=env_train,size=bg_cell_num,na.rm=T,sp=T)
+  #     # run full Maxent model
+  #     p <- extract(env_train,occ_unique)
+  #     a <- extract(env_train,bg)
+  #     pa <- c(rep(1,nrow(p)), rep(0,nrow(a)))
+  #     pder <- as.data.frame(rbind(p,a))
+  #     timestamp <- format(Sys.time(), "%Y%m%d_%H%M_")
+  #     maxent_folder1 <- paste0(timestamp,"full")
+  #     maxent_folder2 <- paste0(timestamp,"2nd")
+  #     
+  #     fullM <- dismo::maxent(x=pder,p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder1),args=c("responsecurves"))
+  #     
+  #     
+  #     # run 2nd model with fewer variables
+  #     
+  #     best_variables <- varContribution(fullM)
+  #     selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
+  #     updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
+  #     updatedMap_clamp <- predict(env_peru,updatedM)
+  #     new_map <- updatedMap_clamp
+  #     predicted_occ_train <- extract(new_map,occ_unique)
+  #     #new_map <- new_map>=min(predicted_occ_train,na.rm = T)
+  #     MTP <- min(predicted_occ_train,na.rm = T)
+  #     new_map[new_map<MTP] <- NA
+  #     new_map
+  #   }
+  # })
+  # 
   # default plot the old map
   output$originalMap <- renderPlot({ 
       plot(map_peru>=min(predicted_occ_train),col=c(NA,"skyblue") ,legend=FALSE)
@@ -303,73 +446,74 @@ shinyServer(function(input, output) {
   })
   
   
-  output$newMap0 <- renderPlot({
-    if(input$runModel != 0 ){
-      new_ped <- updatemap()
-      new_occ <- loadNewPresence()
-      plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
-      plot(Peru,add=T,col=NA,border="black")
-      plot(IUCN,add=T,col=NA,border="green")
-      plot(occ,add=T,col="black")
-      plot(new_occ,add=T,col="red")
-    }
-    if(input$runModel2 != 0){
-      new_ped <- updatemap2()
-      new_occ <- loadNewPresence2()
-      plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
-      plot(Peru,add=T,col=NA,border="black")
-      plot(IUCN,add=T,col=NA,border="green")
-      plot(occ,add=T,col="black")
-      plot(new_occ,add=T,col="red")
-    }
-  })
+  # output$newMap0 <- renderPlot({
+  #   if(input$runModel != 0 ){
+  #     new_ped <- updatemap()
+  #     new_occ <- loadNewPresence()
+  #     plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
+  #     plot(Peru,add=T,col=NA,border="black")
+  #     plot(IUCN,add=T,col=NA,border="green")
+  #     plot(occ,add=T,col="black")
+  #     plot(new_occ,add=T,col="red")
+  #   }
+  #   if(input$runModel2 != 0){
+  #     new_ped <- updatemap2()
+  #     new_occ <- loadNewPresence2()
+  #     plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
+  #     plot(Peru,add=T,col=NA,border="black")
+  #     plot(IUCN,add=T,col=NA,border="green")
+  #     plot(occ,add=T,col="black")
+  #     plot(new_occ,add=T,col="red")
+  #   }
+  # })
   
-  output$newMap_leaf <- renderLeaflet({
-    if(input$runModel != 0 ){
-      new_ped <- updatemap()
-      new_occ <- loadNewPresence()
+  # output$newMap_leaf <- renderLeaflet({
+  #   if(input$runModel != 0 ){
+  #     new_ped <- updatemap()
+  #     new_occ <- loadNewPresence()
+  # 
+  #     leaflet() %>%
+  #       addTiles() %>%
+  #       addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+  #                   opacity = 1, fillOpacity = 0) %>%
+  #       addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
+  #                   opacity = 1, fillOpacity = 0) %>%
+  #       addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
+  #                        as.numeric(as.character(occ$Latitude)),
+  #                        color="black",
+  #                        radius=4,
+  #                        opacity = 0.6) %>%
+  #       addCircleMarkers(coordinates(new_occ)[,1], 
+  #                        coordinates(new_occ)[,2],
+  #                        color="red",
+  #                        radius=4,
+  #                        opacity = 0.6) %>%
+  #       addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
+  #   }
+  #   if(input$runModel2 != 0){
+  #     new_ped <- updatemap2()
+  #     new_occ <- loadNewPresence2()
+  #     leaflet() %>%
+  #       addTiles() %>%
+  #       addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+  #                   opacity = 1, fillOpacity = 0) %>%
+  #       addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
+  #                   opacity = 1, fillOpacity = 0) %>%
+  #       addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
+  #                        as.numeric(as.character(occ$Latitude)),
+  #                        color="black",
+  #                        radius=4,
+  #                        opacity = 0.6) %>%
+  #       addCircleMarkers(coordinates(new_occ)[,1], 
+  #                        coordinates(new_occ)[,2],
+  #                        color="red",
+  #                        radius=4,
+  #                        opacity = 0.6) %>%
+  #       addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
+  #   }
+  # })
 
-      leaflet() %>%
-        addTiles() %>%
-        addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
-                    opacity = 1, fillOpacity = 0) %>%
-        addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
-                    opacity = 1, fillOpacity = 0) %>%
-        addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
-                         as.numeric(as.character(occ$Latitude)),
-                         color="black",
-                         radius=4,
-                         opacity = 0.6) %>%
-        addCircleMarkers(coordinates(new_occ)[,1], 
-                         coordinates(new_occ)[,2],
-                         color="red",
-                         radius=4,
-                         opacity = 0.6) %>%
-        addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
-    }
-    if(input$runModel2 != 0){
-      new_ped <- updatemap2()
-      new_occ <- loadNewPresence2()
-      leaflet() %>%
-        addTiles() %>%
-        addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
-                    opacity = 1, fillOpacity = 0) %>%
-        addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
-                    opacity = 1, fillOpacity = 0) %>%
-        addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
-                         as.numeric(as.character(occ$Latitude)),
-                         color="black",
-                         radius=4,
-                         opacity = 0.6) %>%
-        addCircleMarkers(coordinates(new_occ)[,1], 
-                         coordinates(new_occ)[,2],
-                         color="red",
-                         radius=4,
-                         opacity = 0.6) %>%
-        addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
-    }
-  })
 
-
-
+  output$ttt <- renderText({paste0("You are viewing tab \"", input$tabs, "\"")})
+  
 })

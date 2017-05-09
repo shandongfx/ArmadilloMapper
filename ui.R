@@ -16,11 +16,17 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(position = "left",
     sidebarPanel(
+      
+      textOutput("ttt"),
+      textOutput("sss"),
+      textOutput("error"),
+      actionButton("runrunrun", label = "runrunrun"),br(),
+      
       img(src="dp_photo.jpg", height = 100, width = 200),
       h4("Please provide your coordinates:"),
 
-      tabsetPanel(
-        tabPanel("Manual input",
+      tabsetPanel(id = "tabs",
+        tabPanel("Manual input",id="man",
                  #textInput("lon",label="Longitude",value = ""),
                  #textInput("lat",label="Latitude",value = ""),
                  numericInput("lon", "Longitude:", -999, min = -180, max = 180),
@@ -34,7 +40,7 @@ shinyUI(fluidPage(
                  br()
                  
                  ), 
-        tabPanel("Batch input",
+        tabPanel("Batch input",id="bat",
                  fileInput('file1', 'Choose CSV File',
                            accept=c('text/csv', 
                                     'text/comma-separated-values,text/plain', 
@@ -61,10 +67,7 @@ shinyUI(fluidPage(
                  br()
                  )
       )
-      
       ),
-
-
     # Show a plot of the generated distribution
     mainPanel(#width=6,
                tabsetPanel(
