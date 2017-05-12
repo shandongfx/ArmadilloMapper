@@ -12,7 +12,8 @@ shinyUI(fluidPage(
 
   # Application title
   titlePanel(h1(em("Dasypus pilosus's"), "potential distribution in Peru")),
-
+  tags$head(includeScript("www/google-analytics.js")),
+  
   # Sidebar with a slider input for number of bins
   sidebarLayout(position = "left",
     sidebarPanel(
@@ -21,6 +22,8 @@ shinyUI(fluidPage(
       #actionButton("runrunrun", label = "runrunrun"),br(),
       img(src="dp_photo.jpg", height = 100, width = 200),
       actionButton("runrunrun", label = "Update map"),
+      #actionButton("but_niche", label = "Update niche"),
+      
       #helpText("Be patient after click this button."),
       
       h2("Please provide your coordinates:"),
@@ -58,7 +61,9 @@ shinyUI(fluidPage(
                  tableOutput('contents'),
                  br()
                  )
-      )
+      ),
+      #h3("Contact Xiao.Feng@okstate.edu for more information."),
+      h4(em("Contact Xiao Feng",a("[web]", href="http://www.fengxiao.info"),a("[email]", href="mailto:Xiao.Feng@okstate.edu"), "for more information." ))
       ),
     # Show a plot of the generated distribution
     mainPanel(#width=6,
@@ -82,8 +87,29 @@ shinyUI(fluidPage(
                                  h4("Your updated potential distribution:"),
                                  leafletOutput("newMap_leaf")
                           )
-                 )
+                 ),
+                 tabPanel("Climatic niche",
+                          #column(12,
+                          #       )
+                          h4("Red: climatic niche based on occurrence data in Feng et al. 2017"),
+                          h4("Blue: climatic niche based on new occurrence data"),
+                          column(6,
+                                 #h4("climatic niche"),
+                                 plotOutput("niche2d_old")
+                          ),
+                          column(6,
+                                 #h4("climatic niche"),
+                                 plotOutput("niche2d_new")
+                          )
 
+                 ),
+                 column(12,
+                        br(),br(),
+                        h4("References:"),
+                        h5("Castro et al. (2015) Reassessment of the hairy long-nosed armadillo",em("\"Dasypus\" pilosus"),"(Xenarthra, Dasypodidae) and revalidation of the genus", em("Cryptophractus"),"Fitzinger, 1856. Zootaxa, 3947, 30."),
+                        h5("Feng et al. (2017) Hiding in a Cool Climatic Niche in the Tropics? An Assessment of the Ecological Biogeography of Hairy Long-Nosed Armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, doi:10.1177/1940082917697249.")
+                 )
+                        
                )
                
     )

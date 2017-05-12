@@ -4,8 +4,12 @@ library(shiny)
 library(dismo)
 library(raster)
 library(sp)
+library(ggplot2)
+#library(rJava)
 load("raw_data_clean/occ")
-load("raw_data_clean/env")
+#load("raw_data_clean/env")
+env <- stack(list.files("raw_data_clean/climate/",pattern = ".bil$",full.names=T))
+crs(env) <- crs(occ)
 #load("raw_data_clean/raw_prediction")
 load("raw_data_clean/raw_prediction_peru") #  map_peru
 load("raw_data_clean/shp_peru") # Peru
@@ -15,6 +19,9 @@ original_MTP <- min(predicted_occ_train)
 load("raw_data_clean/iucn")
 load("raw_data_clean/env_peru")
 flag_test=FALSE
+
+load("raw_data_clean/env_p")
+load("raw_data_clean/env_a")
 
 # function of checking data
 checkData <- function(in1,in2){
@@ -87,7 +94,6 @@ filterVariables <- function(layers,pre.var= NULL,threshold ){
   
 }
 
-
 shinyServer(function(input, output) {
   
   # check manual input
@@ -121,7 +127,6 @@ shinyServer(function(input, output) {
           )
         }
   })
-  
   output$error  <- renderText({
     checkocc_click()
   })
@@ -153,7 +158,7 @@ shinyServer(function(input, output) {
         coordinates(newocc) <- ~ lon + lat
         crs(newocc) <- crs(env)
         newocc
-      }
+      } #else("error")
     } else
       if(input$tabs=="Batch input"){
         inFile <- input$file1
@@ -190,6 +195,7 @@ shinyServer(function(input, output) {
     #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".tif",sep=""),format="GTiff",bylayer=T,overwrite=T)
     #writeRaster(env_ext,filename=paste("climateData/2_5m_studyArea/",names(env_ext),".asc",sep=""),format="ascii",bylayer=T,overwrite=T)
     if (ncell(env_train)>=10000) {bg_cell_num <- 10000} else bg_cell_num<- ncell(env_train)
+    set.seed(1) # this will guarantee the same random sample...
     bg <- sampleRandom(x=env_train,size=bg_cell_num,na.rm=T,sp=T)
     # run full Maxent model
     p <- extract(env_train,occ_unique)
@@ -251,26 +257,13 @@ shinyServer(function(input, output) {
     plot_click()
   })
   
-  # output$newMap0 <- renderPlot({
-  #   if(input$runrunrun != 0 ){
-  #     new_ped <- updatemap_click()
-  #     new_occ <- loadocc_click()
-  #     plot(new_ped,col=c(NA,"skyblue") ,legend=FALSE)
-  #     plot(Peru,add=T,col=NA,border="black")
-  #     plot(IUCN,add=T,col=NA,border="green")
-  #     plot(occ,add=T,col="black")
-  #     plot(new_occ,add=T,col="red")
-  #   }
-  # })
-
- 
   output$originalMap <- renderPlot({ 
     mm <- map_peru
     mm[mm<original_MTP] <- NA
     plot(Peru,add=F,col=NA,border="black")
     plot(mm,add=T,col="skyblue" ,legend=FALSE)
     plot(IUCN,add=T,col=NA,border="green")
-      #plot(occ,add=T,col="black")
+    plot(occ,add=T,col="black")
   })
   
   # default plot the old map
@@ -292,6 +285,45 @@ shinyServer(function(input, output) {
       addRasterImage(mm, colors = "skyblue", opacity = 0.9) 
   })
   
+  # update_niche2d <- reactive({
+  #   #new_occ <- loadocc_click()
+  # 
+  updateniche_click <- eventReactive(input$runrunrun, {
+    new_occ <- loadocc_click()
+    p_new <- as.data.frame( extract(env,new_occ),na.rm=T )
+    
+    p_hull <- chull(p$bio1/10,p$bio12)
+    p_all <- rbind(p_new,p)
+    p_hull_new <- chull(p_all$bio1/10,p_all$bio12)
+    nicheplot_new <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
+      geom_point(  colour = "gray",size=0.5    )  +
+      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="red" ) +
+      geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill="blue" ) +
+      geom_point(aes(x=bio1/10,y=bio12),size=0.5,col="red",data=p)+
+      geom_point(aes(x=bio1/10,y=bio12),size=0.5,col="blue",data=p_new)+
+      xlab("Annual mean temperature (°C)")+
+      ylab("Annual precipitation (mm)")+
+      theme(legend.position="none")+
+      theme(text = element_text(size=8) )#+
+      
+    
+    nicheplot_new  
+   })
+  output$niche2d_old <- renderPlot({ 
+    p_hull <- chull(p$bio1/10,p$bio12)
+    nicheplot <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
+      geom_point(  colour = "gray",size=0.5    )  +
+      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="red" ) +
+      geom_point(aes(x=bio1/10,y=bio12),size=0.5,col="red",data=p)+
+      xlab("Annual mean temperature (°C)")+
+      ylab("Annual precipitation (mm)")+
+      theme(legend.position="none")+
+      theme(text = element_text(size=8) )
+    nicheplot  
+  })
+  output$niche2d_new <- renderPlot({ 
+    updateniche_click()
+  })
   #output$ttt <- renderText({paste0("You are viewing tab \"", input$tabs, "\"")})
   
 })
