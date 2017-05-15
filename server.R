@@ -97,21 +97,34 @@ filterVariables <- function(layers,pre.var= NULL,threshold ){
 shinyServer(function(input, output) {
   
   # check manual input
-  testoutput <- eventReactive(input$runrunrun, {
-    if(input$tabs=="Manual input"){
-      paste0("You are viewing tab \"", input$tabs, "\"")
-    } else
-    if(input$tabs=="Batch input"){
-      paste0("You are viewing tab \"", input$tabs, "\"")
-    }
-  })
-  output$sss  <- renderText({
-    testoutput()
-  })
+  # testoutput <- eventReactive(input$runrunrun, {
+  #   if(input$tabs=="Manual input"){
+  #     paste0("You are viewing tab \"", input$tabs, "\"")
+  #   } else
+  #   if(input$tabs=="Batch input"){
+  #     paste0("You are viewing tab \"", input$tabs, "\"")
+  #   }
+  # })
+  # output$sss  <- renderText({
+  #   testoutput()
+  # })
   checkocc_click <- eventReactive(input$runrunrun, {
     if(input$tabs=="Manual input"){
+      man_lat_all <- c(input$latitude,
+                       input$latitude2,
+                       input$latitude3,
+                       input$latitude4,
+                       input$latitude5 )
+      man_lon_all <- c(input$longitude,
+                       input$longitude2,
+                       input$longitude3,
+                       input$longitude4,
+                       input$longitude5 )
+      man_coord <- as.data.frame( cbind(man_lon_all,man_lat_all) )
+      man_coord <- man_coord[which(man_coord$man_lon_all!="-999" &
+                                   man_coord$man_lat_all!="-999"),]
       validate(
-        checkData(input$lat,input$lon)
+        checkData2(man_coord$man_lat_all,man_coord$man_lon_all)
       )
     } else
       if(input$tabs=="Batch input"){
@@ -123,7 +136,7 @@ shinyServer(function(input, output) {
           upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
                                  quote=input$quote)
           validate(
-            checkData2(upload_occ$lat,upload_occ$lon)
+            checkData2(upload_occ$latitude,upload_occ$longitude)
           )
         }
   })
@@ -150,12 +163,24 @@ shinyServer(function(input, output) {
   
   loadocc_click <- eventReactive(input$runrunrun, {
     if(input$tabs=="Manual input"){
-      if(is.null(  checkData(input$lat,input$lon)) ){
-        #update occ
-        lat=as.numeric(input$lat)
-        lon=as.numeric(input$lon)
-        newocc <- data.frame(lon,lat)
-        coordinates(newocc) <- ~ lon + lat
+      man_lat_all <- c(input$latitude,
+                       input$latitude2,
+                       input$latitude3,
+                       input$latitude4,
+                       input$latitude5 )
+      man_lon_all <- c(input$longitude,
+                       input$longitude2,
+                       input$longitude3,
+                       input$longitude4,
+                       input$longitude5 )
+      man_coord <- as.data.frame( cbind(man_lon_all,man_lat_all) )
+      man_coord <- man_coord[which(man_coord$man_lon_all!="-999" &
+                                     man_coord$man_lat_all!="-999"),]
+      
+      if(is.null(checkData2(man_coord$man_lat_all,man_coord$man_lon_all)) ){
+        
+        newocc <- man_coord
+        coordinates(newocc) <- ~ man_lon_all + man_lat_all
         crs(newocc) <- crs(env)
         newocc
       } #else("error")
@@ -165,13 +190,13 @@ shinyServer(function(input, output) {
         if (is.null(inFile)) return(NULL)
         upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
                                quote=input$quote)
-        if(is.null(checkData2(upload_occ$lat,upload_occ$lon)) ){
+        if(is.null(checkData2(upload_occ$latitude,upload_occ$longitude)) ){
           #update occ
           #Latitude=as.numeric(upload_occ$lat)
           #Longitude=as.numeric(upload_occ$lon)
           #newocc <- data.frame(Longitude,Latitude)
           newocc <- upload_occ
-          coordinates(newocc) <- ~ lon + lat
+          coordinates(newocc) <- ~ longitude + latitude
           crs(newocc) <- crs(env)
           newocc
         }
@@ -237,13 +262,15 @@ shinyServer(function(input, output) {
                        color="red",
                        radius=4,
                        opacity = 0.6) %>%
-      addRasterImage(new_ped, colors = "skyblue", opacity = 0.9) 
+      addRasterImage(new_ped, colors = "skyblue", opacity = 0.5)  %>%
+      setView(lng=-77,lat=-9,zoom=6)
     new_map
   })
   plot_click_normal <- eventReactive(input$runrunrun, {
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
-    plot(new_ped,col="skyblue" ,legend=FALSE)
+    plot(new_ped,col="skyblue" ,legend=FALSE,
+         xlab="Longitude", ylab="Latitude")
     plot(Peru,add=T,col=NA,border="black")
     plot(IUCN,add=T,col=NA,border="green")
     plot(occ,add=T,col="black")
@@ -260,8 +287,9 @@ shinyServer(function(input, output) {
   output$originalMap <- renderPlot({ 
     mm <- map_peru
     mm[mm<original_MTP] <- NA
-    plot(Peru,add=F,col=NA,border="black")
-    plot(mm,add=T,col="skyblue" ,legend=FALSE)
+    plot(mm,col="skyblue" ,legend=FALSE,
+         xlab="Longitude", ylab="Latitude")
+    plot(Peru,add=T,col=NA,border="black")
     plot(IUCN,add=T,col=NA,border="green")
     plot(occ,add=T,col="black")
   })
@@ -271,6 +299,7 @@ shinyServer(function(input, output) {
     mm <- map_peru
     mm[mm<original_MTP] <- NA
     leaflet() %>%
+      #addProviderTiles(providers$Esri.WorldImagery)%>%
       addTiles() %>%
       addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
                   opacity = 1, fillOpacity = 0) %>%
@@ -282,7 +311,9 @@ shinyServer(function(input, output) {
                        color="black",
                        radius=4,
                        opacity = 0.6) %>%
-      addRasterImage(mm, colors = "skyblue", opacity = 0.9) 
+      addRasterImage(mm, colors = "skyblue", opacity = 0.5) %>%
+      setView(lng=-77,lat=-9,zoom=6) 
+      
   })
   
   # update_niche2d <- reactive({
@@ -296,15 +327,17 @@ shinyServer(function(input, output) {
     p_all <- rbind(p_new,p)
     p_hull_new <- chull(p_all$bio1/10,p_all$bio12)
     nicheplot_new <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
-      geom_point(  colour = "gray",size=0.5    )  +
+      geom_point(  colour = "gray",size=1    )  +
       geom_polygon(data = p[p_hull,], alpha = 0.3,fill="red" ) +
       geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill="blue" ) +
-      geom_point(aes(x=bio1/10,y=bio12),size=0.5,col="red",data=p)+
-      geom_point(aes(x=bio1/10,y=bio12),size=0.5,col="blue",data=p_new)+
+      geom_point(aes(x=bio1/10,y=bio12),size=1,col="red",data=p)+
+      geom_point(aes(x=bio1/10,y=bio12),size=1,col="blue",data=p_new)+
       xlab("Annual mean temperature (°C)")+
       ylab("Annual precipitation (mm)")+
       theme(legend.position="none")+
-      theme(text = element_text(size=8) )#+
+      theme(axis.text=element_text(size=18),
+            axis.title=element_text(size=18,face="bold"),
+            legend.text = element_text(size = 18))
       
     
     nicheplot_new  
@@ -312,13 +345,15 @@ shinyServer(function(input, output) {
   output$niche2d_old <- renderPlot({ 
     p_hull <- chull(p$bio1/10,p$bio12)
     nicheplot <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
-      geom_point(  colour = "gray",size=0.5    )  +
+      geom_point(  colour = "gray",size=1    )  +
       geom_polygon(data = p[p_hull,], alpha = 0.3,fill="red" ) +
-      geom_point(aes(x=bio1/10,y=bio12),size=0.5,col="red",data=p)+
+      geom_point(aes(x=bio1/10,y=bio12),size=1,col="red",data=p)+
       xlab("Annual mean temperature (°C)")+
       ylab("Annual precipitation (mm)")+
       theme(legend.position="none")+
-      theme(text = element_text(size=8) )
+      theme(axis.text=element_text(size=18),
+            axis.title=element_text(size=18,face="bold"),
+            legend.text = element_text(size = 18))
     nicheplot  
   })
   output$niche2d_new <- renderPlot({ 

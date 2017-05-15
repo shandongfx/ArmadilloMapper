@@ -33,9 +33,38 @@ shinyUI(fluidPage(
         tabPanel("Manual input",id="man",
                  #textInput("lon",label="Longitude",value = ""),
                  #textInput("lat",label="Latitude",value = ""),
-                 numericInput("lon", "Longitude:", -999, min = -180, max = 180),
-                 numericInput("lat", "Latitude:", -999, min = -90, max = 90),
-                 
+                 #numericInput("longitude", "Longitude:", -78.4492, min = -180, max = 180),
+                 #numericInput("latitude", "Latitude:", -6.64722, min = -90, max = 90),
+                 column(6,
+                        numericInput("longitude", "Longitude:", -78.4492, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("latitude", "Latitude:", -6.64722, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("longitude2", "Longitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("latitude2", "Latitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("longitude3", "Longitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("latitude3", "Latitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("longitude4", "Longitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("latitude4", "Latitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("longitude5", "Longitude:", -999, min = -180, max = 180)
+                 ),
+                 column(6,
+                        numericInput("latitude5", "Latitude:", -999, min = -180, max = 180)
+                 ),
                  br(),
                  br()
                  ), 
@@ -63,7 +92,7 @@ shinyUI(fluidPage(
                  )
       ),
       #h3("Contact Xiao.Feng@okstate.edu for more information."),
-      h4(em("Contact Xiao Feng",a("[web]", href="http://www.fengxiao.info"),a("[email]", href="mailto:Xiao.Feng@okstate.edu"), "for more information." ))
+      h4(em("Contact Xiao Feng",a("[web]", href="http://www.fengxiao.info"),a("[email]", href="mailto:xiao.feng.armadillo@gmail.com"), "for more information." ))
       ),
     # Show a plot of the generated distribution
     mainPanel(#width=6,
@@ -104,7 +133,7 @@ shinyUI(fluidPage(
 
                  ),
                  column(12,
-                        br(),br(),
+                        #br(),br(),
                         h4("References:"),
                         h5("Castro et al. (2015) Reassessment of the hairy long-nosed armadillo",em("\"Dasypus\" pilosus"),"(Xenarthra, Dasypodidae) and revalidation of the genus", em("Cryptophractus"),"Fitzinger, 1856. Zootaxa, 3947, 30."),
                         h5("Feng et al. (2017) Hiding in a Cool Climatic Niche in the Tropics? An Assessment of the Ecological Biogeography of Hairy Long-Nosed Armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, doi:10.1177/1940082917697249.")
