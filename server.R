@@ -24,13 +24,14 @@ load("raw_data_clean/env_p")
 load("raw_data_clean/env_a")
 
 # function of checking data
-checkData <- function(in1,in2){
-  if(in1 > 90 | in1 < -90 | in2 > 180 | in2 < -180 | is.na(in1) | is.na(in2)){
-    "Please provide valid coordinates."
-  } else {
-    NULL
-  }
-}
+# checkData <- function(in1,in2){
+#   if(in1 > 90 | in1 < -90 | in2 > 180 | in2 < -180 | is.na(in1) | is.na(in2)){
+#     "Please provide valid coordinates."
+#   } else {
+#     NULL
+#   }
+# }
+
 # function of checking data
 checkData2 <- function(in1,in2){
   for(i in length(in1)){
@@ -53,6 +54,7 @@ varContribution <- function (mod,contribution.index=0){
   pre.var <- gsub(".contribution","",names(var.con.sub))
   return (pre.var)
 }
+
 # function of selecting variable based on correlation matrix
 filterVariables <- function(layers,pre.var= NULL,threshold ){
   #threshold=0.7
@@ -140,18 +142,13 @@ shinyServer(function(input, output) {
           )
         }
   })
+  
   output$error  <- renderText({
     checkocc_click()
   })
+  
   # show checked results
   output$contents <- renderTable({
-    
-    # input$file1 will be NULL initially. After the user selects
-    # and uploads a file, it will be a data frame with 'name',
-    # 'size', 'type', and 'datapath' columns. The 'datapath'
-    # column will contain the local filenames where the data can
-    # be found.
-    
     inFile <- input$file1
     
     if (is.null(inFile))
@@ -203,6 +200,7 @@ shinyServer(function(input, output) {
     }
     
   })
+  
   updatemap_click <- eventReactive(input$runrunrun, {
     new_occ <- loadocc_click()
     occ_all <- occ + new_occ
@@ -316,9 +314,6 @@ shinyServer(function(input, output) {
       
   })
   
-  # update_niche2d <- reactive({
-  #   #new_occ <- loadocc_click()
-  # 
   updateniche_click <- eventReactive(input$runrunrun, {
     new_occ <- loadocc_click()
     p_new <- as.data.frame( extract(env,new_occ),na.rm=T )
