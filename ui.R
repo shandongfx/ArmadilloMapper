@@ -110,8 +110,9 @@ shinyUI(fluidPage(
                  column(12,
                         h4("References:"),
                         h5("Castro et al. (2015) Reassessment of the hairy long-nosed armadillo",em("\"Dasypus\" pilosus"),"(Xenarthra, Dasypodidae) and revalidation of the genus", em("Cryptophractus"),"Fitzinger, 1856. Zootaxa, 3947, 30."),
-                        h5("Feng et al. (2017) Hiding in a Cool Climatic Niche in the Tropics? An Assessment of the Ecological Biogeography of Hairy Long-Nosed Armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, doi:10.1177/1940082917697249.")
-                 )
+                        h5("Feng et al. (2017) Hiding in a Cool Climatic Niche in the Tropics? An Assessment of the Ecological Biogeography of Hairy Long-Nosed Armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, doi:10.1177/1940082917697249."),
+                        h5("Note: The potential distribution is made by", a("Maxent algorithm", href="https://www.cs.princeton.edu/~schapire/maxent/"),"(3.3.3k, MIT License).")
+                       )
                )
     )
   )
