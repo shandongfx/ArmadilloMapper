@@ -4,3 +4,4 @@
 .Ruserdata
 maxent.*
 raw_data_clean/climate
+test_*

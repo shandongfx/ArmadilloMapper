@@ -5,8 +5,8 @@ id,key,en,sp
 4,text_please,Please provide your coordinates:,Por favor inserte sus coordenadas
 5,text_man,Manual input,Entrada manual
 6,text_batch,Batch input,Entrada en lotes
-7,text_lon,Longitude:,Longitud
-8,text_lat,Latitude:,Latitud
+7,text_lon,Longitude:,Longitud:
+8,text_lat,Latitude:,Latitud:
 9,text_contact1,Contact Xiao Feng [web] [email] for more information.,Contactar a Xiao Feng [web] [email] para más informaciones.
 10,text_contact1_html,"<h4>
   <em>
@@ -45,4 +45,4 @@ id,key,en,sp
     .
   </em>
 </h4>"
-,text_note1,"Note: The potential distribution is made by Maxent algorithm (3.3.3k, MIT License).",
+21,text_note1,"Note: The potential distribution is made by Maxent algorithm (3.3.3k, MIT License).","Nota: La distribución potencial se realiza mediante el algoritmo Maxent (3.3.3k, Licencia MIT)."
