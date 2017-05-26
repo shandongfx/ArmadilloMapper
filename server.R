@@ -24,15 +24,6 @@ load("raw_data_clean/env_p")
 load("raw_data_clean/env_a")
 
 # function of checking data
-# checkData <- function(in1,in2){
-#   if(in1 > 90 | in1 < -90 | in2 > 180 | in2 < -180 | is.na(in1) | is.na(in2)){
-#     "Please provide valid coordinates."
-#   } else {
-#     NULL
-#   }
-# }
-
-# function of checking data
 checkData2 <- function(in1,in2){
   for(i in length(in1)){
     if(in1[i] > 90 | in1[i] < -90 | 
@@ -46,6 +37,7 @@ checkData2 <- function(in1,in2){
   }
   return(check_report)
 }
+
 # function of selecting top contributing variables
 varContribution <- function (mod,contribution.index=0){
   t <- mod@results
@@ -241,6 +233,7 @@ shinyServer(function(input, output) {
     new_map[new_map<MTP] <- NA
     new_map
   })
+  
   plot_click <- eventReactive(input$runrunrun, {
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
@@ -264,6 +257,7 @@ shinyServer(function(input, output) {
       setView(lng=-77,lat=-9,zoom=6)
     new_map
   })
+  
   plot_click_normal <- eventReactive(input$runrunrun, {
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
@@ -274,6 +268,7 @@ shinyServer(function(input, output) {
     plot(occ,add=T,col="black")
     plot(new_occ,add=T,col="red")
   })
+  
   output$newMap0 <- renderPlot({
     plot_click_normal()
   })
@@ -337,6 +332,7 @@ shinyServer(function(input, output) {
     
     nicheplot_new  
    })
+  
   output$niche2d_old <- renderPlot({ 
     p_hull <- chull(p$bio1/10,p$bio12)
     nicheplot <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
@@ -351,6 +347,7 @@ shinyServer(function(input, output) {
             legend.text = element_text(size = 18))
     nicheplot  
   })
+  
   output$niche2d_new <- renderPlot({ 
     updateniche_click()
   })
