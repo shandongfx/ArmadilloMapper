@@ -1,0 +1,48 @@
+id,key,en,sp
+1,text_species,<em>Dasypus pilosus</em>,<em>Dasypus pilosus</em>
+2,text_title,<h1><em>Dasypus pilosus</em>'s potential distribution in Peru</h1>,<h1>Distribución potencial de <em>Dasypus pilosus</em> en Perú</h1>
+3,text_buttonupdate,Update map,Actualizar mapa
+4,text_please,Please provide your coordinates:,Por favor inserte sus coordenadas
+5,text_man,Manual input,Entrada manual
+6,text_batch,Batch input,Entrada en lotes
+7,text_lon,Longitude:,Longitud
+8,text_lat,Latitude:,Latitud
+9,text_contact1,Contact Xiao Feng [web] [email] for more information.,Contactar a Xiao Feng [web] [email] para más informaciones.
+10,text_contact1_html,"<h4>
+  <em>
+    Contact Xiao Feng
+    <a href=""http://www.fengxiao.info"">[web]</a>
+    <a href=""mailto:xiao.feng.armadillo@gmail.com"">[email]</a>
+    for more information.
+  </em>
+</h4>","<h4>
+  <em>
+   Contactar a Xiao Feng
+    <a href=""http://www.fengxiao.info"">[web]</a>
+    <a href=""mailto:xiao.feng.armadillo@gmail.com"">[email]</a>
+     para más informaciones.
+  </em>
+</h4>"
+11,text_tab1,Normal map,Mapa normal
+12,text_tab2,Interactive map,Mapa interactivo
+13,text_tab3,Climatic niche,Nicho climático
+14,text_tab1_leg1,The potential distribution from Feng et al. 2017:,Distribución potencial según Feng et al. 2017
+15,text_tab1_leg2,Your updated potential distribution:,Su distribución potencial actualizada
+16,text_tab3_leg1,Red: climatic niche based on occurrence data from Feng et al. 2017,Rojo: nicho climático basado en los datos de ocurrencia de Feng et al. 2017
+17,text_tab3_leg2,Blue: climatic niche based on new occurrence data,Azul: nicho climático basado en los nuevos datos de ocurrencia
+18,text_ref,References:,Referencias:
+19,text_contact2,Not sure about the identification of the specimen? Please contact Mariela Castro [email].,Usted no está seguro acerca de la identificación del especimen? Por favor contacte a Mariela Castro [email]
+20,text_contact2_html,"<h4>
+  <em>
+    Not sure about the identification of the specimen? Please contact Mariela Castro 
+    <a href=""mailto:marielaccastro@yahoo.com.br"">[email]</a>
+    .
+  </em>
+</h4>","<h4>
+  <em>
+    Usted no está seguro acerca de la identificación del especimen? Por favor contacte a Mariela Castro
+    <a href=""mailto:marielaccastro@yahoo.com.br"">[email]</a>
+    .
+  </em>
+</h4>"
+,text_note1,"Note: The potential distribution is made by Maxent algorithm (3.3.3k, MIT License).",

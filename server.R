@@ -5,7 +5,9 @@ library(dismo)
 library(raster)
 library(sp)
 library(ggplot2)
+library(plyr)
 #library(rJava)
+
 load("raw_data_clean/occ")
 #load("raw_data_clean/env")
 env <- stack(list.files("raw_data_clean/climate/",pattern = ".bil$",full.names=T))
@@ -22,6 +24,9 @@ flag_test=FALSE
 
 load("raw_data_clean/env_p")
 load("raw_data_clean/env_a")
+
+languages <- read.csv("raw_data_clean/web translation_v1.csv", header = TRUE, as.is = TRUE) 
+
 
 # function of checking data
 checkData2 <- function(in1,in2){
@@ -88,6 +93,8 @@ filterVariables <- function(layers,pre.var= NULL,threshold ){
   
 }
 
+
+
 shinyServer(function(input, output) {
   
   # check manual input
@@ -103,7 +110,10 @@ shinyServer(function(input, output) {
   #   testoutput()
   # })
   checkocc_click <- eventReactive(input$runrunrun, {
-    if(input$tabs=="Manual input"){
+    #if(input$tabs=="Manual input"){
+    #if(input$id=="man"){
+    if(input$tabs==subset(languages,key=="text_man")$en |
+       input$tabs==subset(languages,key=="text_man")$sp){
       man_lat_all <- c(input$latitude,
                        input$latitude2,
                        input$latitude3,
@@ -121,7 +131,9 @@ shinyServer(function(input, output) {
         checkData2(man_coord$man_lat_all,man_coord$man_lon_all)
       )
     } else
-      if(input$tabs=="Batch input"){
+      #if(input$tabs=="Batch input"){
+      if(input$tabs==subset(languages,key=="text_batch")$en |
+         input$tabs==subset(languages,key=="text_batch")$sp){
           inFile <- input$file1
           
           if (is.null(inFile))
@@ -151,7 +163,10 @@ shinyServer(function(input, output) {
   })
   
   loadocc_click <- eventReactive(input$runrunrun, {
-    if(input$tabs=="Manual input"){
+    #if(input$tabs=="Manual input"){
+    #if(input$id=="man"){
+    if(input$tabs==subset(languages,key=="text_man")$en |
+       input$tabs==subset(languages,key=="text_man")$sp){
       man_lat_all <- c(input$latitude,
                        input$latitude2,
                        input$latitude3,
@@ -174,7 +189,9 @@ shinyServer(function(input, output) {
         newocc
       } #else("error")
     } else
-      if(input$tabs=="Batch input"){
+      #if(input$tabs=="Batch input"){
+      if(input$tabs==subset(languages,key=="text_batch")$en |
+         input$tabs==subset(languages,key=="text_batch")$sp){
         inFile <- input$file1
         if (is.null(inFile)) return(NULL)
         upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
@@ -352,5 +369,189 @@ shinyServer(function(input, output) {
     updateniche_click()
   })
   #output$ttt <- renderText({paste0("You are viewing tab \"", input$tabs, "\"")})
+  
+  # UI
+  # translates text into current language
+  # tr <- function(text){ # translates text into current language
+  #   sapply(text,function(s) translation[[s]][[input$language]], USE.NAMES=FALSE)
+  # }
+  # 
+  # output$text_title <- renderUI({
+  #   titlePanel( HTML(tr("text_title") ) )
+  # })
+  # 
+  # output$text_buttonupdate <- renderUI({
+  #   #actionButton("runrunrun", label = "Update map")
+  #   actionButton("runrunrun", label = tr("text_buttonupdate"))
+  # })
+  # 
+  # output$text_please <- renderUI({
+  #   #h2("Please provide your coordinates:")
+  #   h2(tr("text_please") ) 
+  # })
+  
+
+  # output$text_title <- renderText({
+  #   selectedLanguage <- as.data.frame(t(languages[,input$language]))
+  #   colnames(selectedLanguage) <- languages[,"key"]
+  #   paste0(selectedLanguage$text_title)
+  # })
+    
+  output$mytitle <- renderUI({
+    selectedLanguage <- as.data.frame(t(languages[,input$language]))
+    colnames(selectedLanguage) <- languages[,"key"]
+    titlePanel(HTML(as.character(selectedLanguage$text_title)))
+    #titlePanel(h1(em("Dasypus pilosus's"), "potential distribution in Peru"))
+  })
+  
+  output$wholeUI <- renderUI({
+    
+    selectedLanguage <- as.data.frame(t(languages[,input$language]))
+    colnames(selectedLanguage) <- languages[,"key"]
+  
+    
+    sidebarLayout(position = "left",
+                  sidebarPanel(
+                    img(src="dp_photo.jpg", height = 100, width = 200),
+                    
+                    #actionButton("runrunrun", label = "Update map"),
+                    actionButton("runrunrun", label = selectedLanguage$text_buttonupdate),
+                    
+                    #h2("Please provide your coordinates:"),
+                    h2(selectedLanguage$text_please),
+                    
+                    h2(textOutput("error")),
+                    
+                    tabsetPanel(id = "tabs",
+                                tabPanel(selectedLanguage$text_man,#"Manual input",
+                                         id="man",
+                                         column(6,
+                                                numericInput("longitude", 
+                                                             selectedLanguage$text_lon,#"Longitude:",
+                                                             -78.4492, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("latitude",
+                                                             selectedLanguage$text_lat,#"Latitude:",
+                                                             -6.64722, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("longitude2", 
+                                                             selectedLanguage$text_lon,#"Longitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("latitude2", 
+                                                             selectedLanguage$text_lat,#"Latitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("longitude3",
+                                                             selectedLanguage$text_lon,#"Longitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("latitude3",
+                                                             selectedLanguage$text_lat,#"Latitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("longitude4",
+                                                             selectedLanguage$text_lon,#"Longitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("latitude4", 
+                                                             selectedLanguage$text_lat,#"Latitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("longitude5", 
+                                                             selectedLanguage$text_lon,#"Longitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         column(6,
+                                                numericInput("latitude5", 
+                                                             selectedLanguage$text_lat,#"Latitude:",
+                                                             -999, min = -180, max = 180)
+                                         ),
+                                         br(),
+                                         br()
+                                ),
+                                tabPanel(selectedLanguage$text_batch,#"Batch input",
+                                         id="bat",
+                                         fileInput('file1', 'Choose CSV File',
+                                                   accept=c('text/csv', 
+                                                            'text/comma-separated-values,text/plain', 
+                                                            '.csv')),
+                                         tags$hr(),
+                                         checkboxInput('header', 'Header', TRUE),
+                                         radioButtons('sep', 'Separator',
+                                                      c(Comma=',',
+                                                        Semicolon=';',
+                                                        Tab='\t'),
+                                                      ','),
+                                         radioButtons('quote', 'Quote',
+                                                      c(None='',
+                                                        'Double Quote'='"',
+                                                        'Single Quote'="'"),
+                                                      '"'),
+                                         br(),
+                                         tableOutput('contents'),
+                                         br()
+                                )
+                    ),
+                    #h4(em("Contact Xiao Feng",a("[web]", href="http://www.fengxiao.info"),a("[email]", href="mailto:xiao.feng.armadillo@gmail.com"), "for more information." ))
+                    HTML(as.character(selectedLanguage$text_contact1_html)),
+                    #h4(em("Not sure about the identification of the specimen? Please contact Mariela Castro ",a("[email]",herf="mailto:marielaccastro@yahoo.com.br"),"."))
+                    HTML(as.character(selectedLanguage$text_contact2_html))
+                  ),
+                  
+                  mainPanel(#width=6,
+                    tabsetPanel(
+                      tabPanel(selectedLanguage$text_tab1,#"Normal map",
+                               column(6,
+                                      h4(selectedLanguage$text_tab1_leg1),#h4("The potential distribution from Feng et al. 2017:"),
+                                      plotOutput("originalMap")
+                               ),
+                               column(6,
+                                      h4(selectedLanguage$text_tab1_leg2),#h4("Your updated potential distribution:"),
+                                      plotOutput("newMap0")
+                               )
+                      ),
+                      tabPanel(selectedLanguage$text_tab2,#"Interactive map",
+                               column(6,
+                                      h4(selectedLanguage$text_tab1_leg1),#h4("The potential distribution from Feng et al. 2017:"),
+                                      leafletOutput("originalMap_leaf")
+                               ),
+                               column(6,
+                                      h4(selectedLanguage$text_tab1_leg2),#h4("Your updated potential distribution:"),
+                                      leafletOutput("newMap_leaf")
+                               )
+                      ),
+                      tabPanel(selectedLanguage$text_tab3,#"Climatic niche",
+                               h4(selectedLanguage$text_tab3_leg1),#h4("Red: climatic niche based on occurrence data in Feng et al. 2017"),
+                               h4(selectedLanguage$text_tab3_leg2),#h4("Blue: climatic niche based on new occurrence data"),
+                               column(6,
+                                      plotOutput("niche2d_old")
+                               ),
+                               column(6,
+                                      plotOutput("niche2d_new")
+                               )
+                      ),
+                      column(12,
+                             h4(selectedLanguage$text_ref),#h4("References:"),
+                             h5("Castro et al. (2015) Reassessment of the hairy long-nosed armadillo",em("\"Dasypus\" pilosus"),"(Xenarthra, Dasypodidae) and revalidation of the genus", em("Cryptophractus"),"Fitzinger, 1856. Zootaxa, 3947, 30."),
+                             h5("Feng et al. (2017) Hiding in a Cool Climatic Niche in the Tropics? An Assessment of the Ecological Biogeography of Hairy Long-Nosed Armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, doi:10.1177/1940082917697249."),
+                             h5("Note: The potential distribution is made by", a("Maxent algorithm", href="https://www.cs.princeton.edu/~schapire/maxent/"),"(3.3.3k, MIT License).")
+                      )
+                    )
+                  )
+    )
+  })
+
+    
+
+  
   
 })
