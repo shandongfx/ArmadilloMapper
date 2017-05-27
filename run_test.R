@@ -4,27 +4,3 @@ library(shiny)
 library(leaflet)
 runApp("../Dasypus_web")
 runApp("../Dasypus_web",display.mode="showcase")
-
-
-library(plyr)
-
-languages <- read.csv("raw_data_clean/web translation_v1.csv", header = TRUE, as.is = TRUE) 
-selectedLanguage <- as.data.frame(t(languages[,c("en","sp")]))
-colnames(selectedLanguage) <- languages[,"key"]
-selectedLanguage$text_title[1]
-selectedLanguage$text_title[2]
-
-isValidEmail <- function(x) {
-  judgement <- grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>", as.character(x), ignore.case=TRUE)
-  check_report <- NULL
-  if(!judgement) {check_report <- "Please provide valid coordinates."}
-  return(check_report)
-  }
-
-
-break
-} else {
-  check_report <- NULL
-}
-}
-return(check_report)
