@@ -47,4 +47,15 @@ id,key,en,sp
 </h4>"
 21,text_note1,"Note: The potential distribution is made by Maxent algorithm (3.3.3k, MIT License).","Nota: La distribución potencial se realiza mediante el algoritmo Maxent (3.3.3k, Licencia MIT)."
 22,text_homepage,"<h5> <a href=""/users/fxiao/ArmadilloMapper_en/"">English </a> </h5>","<h5> <a href=""/users/fxiao/ArmadilloMapper_sp/"">Spanish </a> </h5>"
-23,a,a,a
+23,text_pleaseshare,Please provide your detailed information:,Proporcione su información detallada:
+24,text_share1,Your name:,Tu nombre:
+25,text_share2,Email (*required):,Email (*necesario):
+26,text_share3,Locality description:,Descripción de la localidad:
+27,text_share4,"If you have more than one records, please upload any related files, e.g. occurrences data, photos, videos.","Si tiene más de un registro, por favor, cargue cualquier archivo relacionado, p. Datos de ocurrencias, fotos, videos."
+28,text_upload1,Choose Files,Seleccionar archivos
+29,text_upload2,No file chosen,Ningún archivo elegido
+30,text_sharebut,*Submit your data,* Envíe sus datos
+,text_tabshare,Share data,Compartir datos
+,text_upload3,Choose CSV File,Elija Archivo CSV
+,,I observed the species at ...,"Observé la especie en ...
+"

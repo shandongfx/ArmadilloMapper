@@ -15,7 +15,7 @@ shinyUI(fluidPage(
       HTML(as.character(languages$text_homepage[1])),
       HTML(as.character(languages$text_homepage[2]))
   ),
-
+  
   
   tags$head(includeScript("www/google-analytics.js")),
   
@@ -25,12 +25,14 @@ shinyUI(fluidPage(
                   actionButton("runrunrun", label = languages$text_buttonupdate[LL] ),#"Update map"),
                   #helpText("Be patient after click this button."),
                   
-                  h2(languages$text_please[LL]),#"Please provide your coordinates:"),
+                  
                   h2(textOutput("error")),
                   
                   tabsetPanel(id = "tabs",
+                              
                               tabPanel(languages$text_man[LL],#"Manual input",
                                        id="man",
+                                       h2(languages$text_please[LL]),#"Please provide your coordinates:"),
                                        column(6,
                                               numericInput("longitude", languages$text_lon[LL], -78.4492, min = -180, max = 180)
                                        ),
@@ -66,7 +68,9 @@ shinyUI(fluidPage(
                               ), 
                               tabPanel(languages$text_batch[LL],#"Batch input",
                                        id="bat",
-                                       fileInput('file1', 'Choose CSV File',
+                                       h2(languages$text_please[LL]),#"Please provide your coordinates:"),
+                                       fileInput('file1', 
+                                                 languages$text_upload3[LL],#'Choose CSV File',
                                                  accept=c('text/csv', 
                                                           'text/comma-separated-values,text/plain', 
                                                           '.csv')),
@@ -85,6 +89,41 @@ shinyUI(fluidPage(
                                        br(),
                                        tableOutput('contents'),
                                        br()
+                              ),
+                              tabPanel(languages$text_tabshare[LL],#"Share data",
+                                       id="share",
+                                       h2(languages$text_pleaseshare[LL]),#"Please provide your coordinates:"),
+                                       column(6,
+                                              textInput("submit_name",
+                                                        languages$text_share1[LL],#"Your name:",
+                                                        "") 
+                                       ),
+                                       
+                                       column(6,
+                                              textInput("submit_email",
+                                                        languages$text_share2[LL],#"Email (*required):",
+                                                        "")
+                                       ),
+                                       column(12,
+                                              textInput("submit_loca",
+                                                        languages$text_share3[LL],#"Locality description:",
+                                                        languages$text_share5[LL])#"I observed the species at ...")
+                                       ),
+                                       
+                                       column(6,
+                                              numericInput("submit_longitude", languages$text_lon[LL], -999, min = -180, max = 180)
+                                       ),
+                                       column(6,
+                                              numericInput("submit_latitude", languages$text_lat[LL], -999, min = -180, max = 180)
+                                       ),
+                                       
+                                       fileInput("myFile", 
+                                                 languages$text_share5[LL],#"If you have more than one records, please upload any related files, e.g. occurrences data, photos, videos.", 
+                                                 #accept = c('image/png', 'image/jpeg'),
+                                                 multiple=TRUE),
+                                       actionButton("subsubsub", 
+                                                    label = languages$text_sharebut[LL])#"Submit my data" )
+                                       
                               )
                   ),
                   HTML(as.character(languages$text_contact1_html[LL])),

@@ -7,6 +7,10 @@ library(sp)
 library(ggplot2)
 #library(rJava)
 
+options(shiny.maxRequestSize=30*1024^2) # upload size limited to 30MB
+user_path <- paste("userUpload/",format(Sys.time(), "%Y%b%d%H%M"),"",sep="")
+user_txt <- file(paste0(user_path,"/user_info.txt"))
+
 load("raw_data_clean/occ")
 #load("raw_data_clean/env")
 env <- stack(list.files("raw_data_clean/climate/",pattern = ".bil$",full.names=T))
@@ -38,7 +42,12 @@ checkData2 <- function(in1,in2){
   }
   return(check_report)
 }
-
+isValidEmail <- function(x) {
+  judgement <- grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>", as.character(x), ignore.case=TRUE)
+  check_report <- NULL
+  if(!judgement) {check_report <- "Please provide valid email."}
+  return(check_report)
+}
 # function of selecting top contributing variables
 varContribution <- function (mod,contribution.index=0){
   t <- mod@results
@@ -345,5 +354,47 @@ shinyServer(function(input, output) {
     updateniche_click()
   })
 
+  # user upload data
+  observeEvent(input$myFile, {
+    inFile <- input$myFile
+    if (is.null(inFile))
+      return()
+    
+    if( !file.exists(user_path) ) dir.create(user_path)
+    file.copy(inFile$datapath, 
+              file.path(user_path, 
+                        inFile$name) )
+    
+  })
+  
+  dataset <- reactive({
+    # Make sure requirements are met
+    req(input$submit_email)
+    
+    get(input$datasetName, "package:datasets", inherits = FALSE)
+  })
+  
+
+  
+  
+    observeEvent(input$subsubsub, {
+    
+    if( !file.exists(user_path) ) dir.create(user_path)
+    outtext <- paste(input$submit_name,
+                     input$submit_email,
+                     input$submit_loca,
+                     input$submit_longitude,
+                     input$submit_latitude,
+                     sep="\n")
+    cat(text=outtext, file=user_txt,append=TRUE)
+  })
+    
+    checkocc_click <- eventReactive(input$subsubsub, {
+        validate(
+          isValidEmail(input$submit_email)
+        )
+
+    })
+  
 
 })

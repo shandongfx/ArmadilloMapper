@@ -13,3 +13,18 @@ selectedLanguage <- as.data.frame(t(languages[,c("en","sp")]))
 colnames(selectedLanguage) <- languages[,"key"]
 selectedLanguage$text_title[1]
 selectedLanguage$text_title[2]
+
+isValidEmail <- function(x) {
+  judgement <- grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>", as.character(x), ignore.case=TRUE)
+  check_report <- NULL
+  if(!judgement) {check_report <- "Please provide valid coordinates."}
+  return(check_report)
+  }
+
+
+break
+} else {
+  check_report <- NULL
+}
+}
+return(check_report)
