@@ -90,7 +90,8 @@ shinyUI(fluidPage(
                                        tableOutput('contents'),
                                        br()
                               ),
-                              tabPanel(languages$text_tabshare[LL],#"Share data",
+                              tabPanel(languages$text_tabshare[LL],#
+                                       #"Share data",
                                        id="share",
                                        h2(languages$text_pleaseshare[LL]),#"Please provide your coordinates:"),
                                        column(6,
@@ -118,7 +119,7 @@ shinyUI(fluidPage(
                                        ),
                                        
                                        fileInput("myFile", 
-                                                 languages$text_share5[LL],#"If you have more than one records, please upload any related files, e.g. occurrences data, photos, videos.", 
+                                                 languages$text_share4[LL],#"If you have more than one records, please upload any related files, e.g. occurrences data, photos, videos.", 
                                                  #accept = c('image/png', 'image/jpeg'),
                                                  multiple=TRUE),
                                        actionButton("subsubsub", 

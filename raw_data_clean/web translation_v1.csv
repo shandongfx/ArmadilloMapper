@@ -57,5 +57,5 @@ id,key,en,sp
 30,text_sharebut,*Submit your data,* Envíe sus datos
 ,text_tabshare,Share data,Compartir datos
 ,text_upload3,Choose CSV File,Elija Archivo CSV
-,,I observed the species at ...,"Observé la especie en ...
+,text_share5,I observed the species at ...,"Observé la especie en ...
 "
