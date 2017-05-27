@@ -6,11 +6,16 @@ shinyUI(fluidPage(
   # Application title
   titlePanel(HTML(as.character(languages$text_title[LL]))),
 
-  div(style = "position:absolute;right:0.5em;top:0em", 
-      radioButtons(inputId = "whichLang", label = "",
-                   choices = c("English" = "en", "Spanish" = "sp"),
-                   selected = "en")
+  # div(style = "position:absolute;right:0.5em;top:0em", 
+  #     radioButtons(inputId = "whichLang", label = "",
+  #                  choices = c("English" = "en", "Spanish" = "sp"),
+  #                  selected = "en")
+  # ),
+  div(style = "position:absolute;right:0.5em;top:0em",
+      HTML(as.character(languages$text_homepage[1])),
+      HTML(as.character(languages$text_homepage[2]))
   ),
+
   
   tags$head(includeScript("www/google-analytics.js")),
   

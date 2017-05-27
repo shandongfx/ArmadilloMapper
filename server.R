@@ -226,6 +226,7 @@ shinyServer(function(input, output) {
     new_map[new_map<MTP] <- NA
     new_map
   })
+  
   plot_click <- eventReactive(input$runrunrun, {
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
@@ -249,6 +250,7 @@ shinyServer(function(input, output) {
       setView(lng=-77,lat=-9,zoom=6)
     new_map
   })
+  
   plot_click_normal <- eventReactive(input$runrunrun, {
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
@@ -259,6 +261,7 @@ shinyServer(function(input, output) {
     plot(occ,add=T,col="black")
     plot(new_occ,add=T,col="red")
   })
+  
   output$newMap0 <- renderPlot({
     plot_click_normal()
   })
@@ -299,7 +302,6 @@ shinyServer(function(input, output) {
     
   })
   
-  
   updateniche_click <- eventReactive(input$runrunrun, {
     new_occ <- loadocc_click()
     p_new <- as.data.frame( extract(env,new_occ),na.rm=T )
@@ -323,6 +325,7 @@ shinyServer(function(input, output) {
     
     nicheplot_new  
   })
+  
   output$niche2d_old <- renderPlot({ 
     p_hull <- chull(p$bio1/10,p$bio12)
     nicheplot <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
@@ -337,6 +340,7 @@ shinyServer(function(input, output) {
             legend.text = element_text(size = 18))
     nicheplot  
   })
+  
   output$niche2d_new <- renderPlot({ 
     updateniche_click()
   })

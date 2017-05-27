@@ -46,3 +46,5 @@ id,key,en,sp
   </em>
 </h4>"
 21,text_note1,"Note: The potential distribution is made by Maxent algorithm (3.3.3k, MIT License).","Nota: La distribución potencial se realiza mediante el algoritmo Maxent (3.3.3k, Licencia MIT)."
+22,text_homepage,"<h5> <a href=""/users/fxiao/ArmadilloMapper_en/"">English </a> </h5>","<h5> <a href=""/users/fxiao/ArmadilloMapper_sp/"">Spanish </a> </h5>"
+23,a,a,a
