@@ -55,7 +55,7 @@ id,key,en,sp
 28,text_upload1,Choose Files,Seleccionar archivos
 29,text_upload2,No file chosen,Ningún archivo elegido
 30,text_sharebut,*Submit your data,* Envíe sus datos
-,text_tabshare,Share data,Compartir datos
-,text_upload3,Choose CSV File,Elija Archivo CSV
-,text_share5,I observed the species at ...,"Observé la especie en ...
+31,text_tabshare,Share data,Compartir datos
+32,text_upload3,Choose CSV File,Elija Archivo CSV
+33,text_share5,I observed the species at ...,"Observé la especie en ...
 "
