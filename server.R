@@ -13,7 +13,7 @@ user_path <- paste("userUpload/",format(Sys.time(), "%Y%b%d%H%M"),"",sep="")
 user_txt <- file(paste0(user_path,"/user_info.txt"))
 
 # load the Feng et al. (2017) data
-load("raw_data_clean/occ2")
+load("raw_data_clean/occ")
 #load("raw_data_clean/env")
 env <- stack(list.files("raw_data_clean/climate/",pattern = ".bil$",full.names=T))
 crs(env) <- crs(occ)

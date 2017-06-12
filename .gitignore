@@ -6,4 +6,5 @@ maxent.*
 raw_data_clean/climate
 test_*
 userUpload
-maxent_outputs
+maxent_outputs/
+old_versions/
