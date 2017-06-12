@@ -1,6 +1,6 @@
 id,key,en,sp
 1,text_species,<em>Dasypus pilosus</em>,<em>Dasypus pilosus</em>
-2,text_title,<h1><em>Dasypus pilosus</em>'s potential distribution in Peru</h1>,<h1>Distribución potencial de <em>Dasypus pilosus</em> en Perú</h1>
+2,text_title,<h1><em>Dasypus pilosus</em> potential distribution in Peru</h1>,<h1>Distribución potencial de <em>Dasypus pilosus</em> en Perú</h1>
 3,text_buttonupdate,Update map,Actualizar mapa
 4,text_please,Please provide your coordinates:,Por favor inserte sus coordenadas
 5,text_man,Manual input,Entrada manual
@@ -23,7 +23,7 @@ id,key,en,sp
      para más informaciones.
   </em>
 </h4>"
-11,text_tab1,Normal map,Mapa normal
+11,text_tab1,Static map,Mapa estático
 12,text_tab2,Interactive map,Mapa interactivo
 13,text_tab3,Climatic niche,Nicho climático
 14,text_tab1_leg1,The potential distribution from Feng et al. 2017:,Distribución potencial según Feng et al. 2017

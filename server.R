@@ -7,11 +7,13 @@ library(sp)
 library(ggplot2)
 #library(rJava)
 
+# settings for uploading data
 options(shiny.maxRequestSize=30*1024^2) # upload size limited to 30MB
 user_path <- paste("userUpload/",format(Sys.time(), "%Y%b%d%H%M"),"",sep="")
 user_txt <- file(paste0(user_path,"/user_info.txt"))
 
-load("raw_data_clean/occ")
+# load the Feng et al. (2017) data
+load("raw_data_clean/occ2")
 #load("raw_data_clean/env")
 env <- stack(list.files("raw_data_clean/climate/",pattern = ".bil$",full.names=T))
 crs(env) <- crs(occ)
@@ -20,83 +22,16 @@ load("raw_data_clean/raw_prediction_peru") #  map_peru
 load("raw_data_clean/shp_peru") # Peru
 load("raw_data_clean/predicted_occ_train") 
 original_MTP <- min(predicted_occ_train)
-
 load("raw_data_clean/iucn")
 load("raw_data_clean/env_peru")
-flag_test=FALSE
-
 load("raw_data_clean/env_p")
 load("raw_data_clean/env_a")
 
-# function of checking data
-checkData2 <- function(in1,in2){
-  for(i in length(in1)){
-    if(in1[i] > 90 | in1[i] < -90 | 
-       in2[i] > 180 | in2[i] < -180 |
-       is.na(in1[i]) | is.na(in2[i])){
-      check_report <- "Please provide valid coordinates."
-      break
-    } else {
-      check_report <- NULL
-    }
-  }
-  return(check_report)
-}
-isValidEmail <- function(x) {
-  judgement <- grepl("\\<[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\>", as.character(x), ignore.case=TRUE)
-  check_report <- NULL
-  if(!judgement) {check_report <- "Please provide valid email."}
-  return(check_report)
-}
-# function of selecting top contributing variables
-varContribution <- function (mod,contribution.index=0){
-  t <- mod@results
-  var.con <- t[ grep(pattern=".contribution",row.names(t) ) , 1]
-  var.con.sub <- sort( var.con[var.con>contribution.index] ,decreasing = T)
-  pre.var <- gsub(".contribution","",names(var.con.sub))
-  return (pre.var)
-}
-
-# function of selecting variable based on correlation matrix
-filterVariables <- function(layers,pre.var= NULL,threshold ){
-  #threshold=0.7
-  #pre.var <- best_variables
-  #layers <- bg_env
-  if( typeof(layers)=="list" ){
-    m <- abs(cor(layers))
-  } else{
-    cor.m <- layerStats(layers,stat="pearson",na.rm=T)  
-    m <- abs( cor.m[[1]] )
-    m <- as.matrix(m)}
-  
-  if (!is.null(pre.var) ){
-    old.order <- colnames(m)
-    new.order <- old.order %in% pre.var
-    new.order <- c(pre.var,old.order[!new.order])
-    m <- m[new.order,new.order]
-  }
-  
-  if ( !identical(colnames(m) , rownames(m)) ) print("double check the correlation matrix")
-  
-  var <- colnames(m)
-  
-  for(i in 1:length(var)){
-    if(i >= length(var)) break
-    j <- i+1
-    v1 <- m[j:length(var),i]
-    rm.var <- names(v1[which(v1>threshold)])
-    to.rm<- var %in% rm.var
-    #var <- var[!to.rm]
-    m<- m[!to.rm,!to.rm]
-    var <- colnames(m)
-  }
-  return( var )
-}
+source("internalFunctions.R")
 
 shinyServer(function(input, output) {
   
   checkocc_click <- eventReactive(input$runrunrun, {
-    #if(input$tabs=="Manual input"){
     if(input$tabs==languages$text_man[1] |
        input$tabs==languages$text_man[2]   ){
       
@@ -113,23 +48,15 @@ shinyServer(function(input, output) {
       man_coord <- as.data.frame( cbind(man_lon_all,man_lat_all) )
       man_coord <- man_coord[which(man_coord$man_lon_all!="-999" &
                                      man_coord$man_lat_all!="-999"),]
-      validate(
-        checkData2(man_coord$man_lat_all,man_coord$man_lon_all)
-      )
+      validate(checkData2(man_coord$man_lat_all,man_coord$man_lon_all))
     } else
-      #if(input$tabs=="Batch input"){
       if(input$tabs==languages$text_batch[1] |
          input$tabs==languages$text_batch[2]   ){
         inFile <- input$file1
-        
         if (is.null(inFile))
           return(NULL)
-        
-        upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
-                               quote=input$quote)
-        validate(
-          checkData2(upload_occ$latitude,upload_occ$longitude)
-        )
+        upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep,quote=input$quote)
+        validate(checkData2(upload_occ$latitude,upload_occ$longitude))
       }
   })
   
@@ -144,12 +71,10 @@ shinyServer(function(input, output) {
     if (is.null(inFile))
       return(NULL)
     
-    upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
-                           quote=input$quote)
+    upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep,quote=input$quote)
   })
   
   loadocc_click <- eventReactive(input$runrunrun, {
-    #if(input$tabs=="Manual input"){
     if(input$tabs==languages$text_man[1] |
        input$tabs==languages$text_man[2]   ){
       man_lat_all <- c(input$latitude,
@@ -174,7 +99,6 @@ shinyServer(function(input, output) {
         newocc
       } #else("error")
     } else
-      #if(input$tabs=="Batch input"){
       if(input$tabs==languages$text_batch[1] |
          input$tabs==languages$text_batch[2]   ){
         inFile <- input$file1
@@ -182,17 +106,12 @@ shinyServer(function(input, output) {
         upload_occ <- read.csv(inFile$datapath, header=input$header, sep=input$sep, 
                                quote=input$quote)
         if(is.null(checkData2(upload_occ$latitude,upload_occ$longitude)) ){
-          #update occ
-          #Latitude=as.numeric(upload_occ$lat)
-          #Longitude=as.numeric(upload_occ$lon)
-          #newocc <- data.frame(Longitude,Latitude)
           newocc <- upload_occ
           coordinates(newocc) <- ~ longitude + latitude
           crs(newocc) <- crs(env)
           newocc
         }
       }
-    
   })
   
   updatemap_click <- eventReactive(input$runrunrun, {
@@ -222,15 +141,14 @@ shinyServer(function(input, output) {
     timestamp <- format(Sys.time(), "%Y%m%d_%H%M_")
     maxent_folder1 <- paste0(timestamp,"full")
     maxent_folder2 <- paste0(timestamp,"2nd")
-    fullM <- dismo::maxent(x=pder,p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder1),args=c("responsecurves"))
+    fullM <- dismo::maxent(x=pder,p=pa,path=paste0("maxent_outputs/",maxent_folder1),args=c("responsecurves"))
     # run 2nd model with fewer variables
     best_variables <- varContribution(fullM)
     selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
-    updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("d:/projects/2016.4_dasypus_pilosus/cleaned_version_2017_5/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
+    updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("maxent_outputs/",maxent_folder2),args=c("responsecurves"))
     updatedMap_clamp <- predict(env_peru,updatedM)
     new_map <- updatedMap_clamp
     predicted_occ_train <- extract(new_map,occ_unique)
-    #new_map <- new_map>=min(predicted_occ_train,na.rm = T)
     MTP <- min(predicted_occ_train,na.rm = T)
     new_map[new_map<MTP] <- NA
     new_map
@@ -300,7 +218,6 @@ shinyServer(function(input, output) {
                   opacity = 1, fillOpacity = 0) %>%
       addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
                   opacity = 1, fillOpacity = 0) %>%
-      #addMarkers(as.numeric(as.character(occ$Longitude)), as.numeric(as.character(occ$Latitude))) %>%
       addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
                        as.numeric(as.character(occ$Latitude)),
                        color="black",
@@ -320,18 +237,16 @@ shinyServer(function(input, output) {
     p_hull_new <- chull(p_all$bio1/10,p_all$bio12)
     nicheplot_new <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
       geom_point(  colour = "gray",size=1    )  +
-      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="red" ) +
-      geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill="blue" ) +
-      geom_point(aes(x=bio1/10,y=bio12),size=1,col="red",data=p)+
-      geom_point(aes(x=bio1/10,y=bio12),size=1,col="blue",data=p_new)+
+      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="black" ) +
+      geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill="red" ) +
+      geom_point(aes(x=bio1/10,y=bio12),size=1,col="black",data=p)+
+      geom_point(aes(x=bio1/10,y=bio12),size=1,col="red",data=p_new)+
       xlab("Annual mean temperature (°C)")+
       ylab("Annual precipitation (mm)")+
       theme(legend.position="none")+
       theme(axis.text=element_text(size=18),
             axis.title=element_text(size=18,face="bold"),
             legend.text = element_text(size = 18))
-    
-    
     nicheplot_new  
   })
   
@@ -339,8 +254,8 @@ shinyServer(function(input, output) {
     p_hull <- chull(p$bio1/10,p$bio12)
     nicheplot <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
       geom_point(  colour = "gray",size=1    )  +
-      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="red" ) +
-      geom_point(aes(x=bio1/10,y=bio12),size=1,col="red",data=p)+
+      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="black" ) +
+      geom_point(aes(x=bio1/10,y=bio12),size=1,col="black",data=p)+
       xlab("Annual mean temperature (°C)")+
       ylab("Annual precipitation (mm)")+
       theme(legend.position="none")+
@@ -364,21 +279,15 @@ shinyServer(function(input, output) {
     file.copy(inFile$datapath, 
               file.path(user_path, 
                         inFile$name) )
-    
   })
   
   dataset <- reactive({
     # Make sure requirements are met
     req(input$submit_email)
-    
     get(input$datasetName, "package:datasets", inherits = FALSE)
   })
   
-
-  
-  
-    observeEvent(input$subsubsub, {
-    
+  observeEvent(input$subsubsub, {
     if( !file.exists(user_path) ) dir.create(user_path)
     outtext <- paste(input$submit_name,
                      input$submit_email,
@@ -390,11 +299,6 @@ shinyServer(function(input, output) {
   })
     
     checkocc_click <- eventReactive(input$subsubsub, {
-        validate(
-          isValidEmail(input$submit_email)
-        )
-
+        validate(isValidEmail(input$submit_email) )
     })
-  
-
 })
