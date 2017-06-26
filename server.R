@@ -14,11 +14,9 @@ user_txt <- file(paste0(user_path,"/user_info.txt"))
 
 # load the Feng et al. (2017) data
 load("raw_data_clean/occ")
-#load("raw_data_clean/env")
 env <- stack(list.files("raw_data_clean/climate/",pattern = ".bil$",full.names=T))
 crs(env) <- crs(occ)
-#load("raw_data_clean/raw_prediction")
-load("raw_data_clean/raw_prediction_peru") #  map_peru
+load("raw_data_clean/paper_ped")
 load("raw_data_clean/shp_peru") # Peru
 load("raw_data_clean/predicted_occ_train") 
 original_MTP <- min(predicted_occ_train)
@@ -155,8 +153,41 @@ shinyServer(function(input, output) {
   })
   
   plot_click <- eventReactive(input$runrunrun, {
+    mm <- paper_ped
+    mm[mm<original_MTP] <- NA
+    
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
+    
+    crs(new_ped) <- crs(mm)
+    
+    diff <- env_peru[[1]]
+    values(diff) <- NA
+    
+    mm <- leaflet::projectRasterForLeaflet(mm)
+    new_ped <- leaflet::projectRasterForLeaflet(new_ped)
+    diff <- leaflet::projectRasterForLeaflet(diff)
+    
+    diff[(!is.na(values(mm)))  & (!is.na(values(new_ped)))   ] <- 0
+    diff[(is.na(values(mm)))  & (!is.na(values(new_ped)))   ] <- 1
+    diff[(!is.na(values(mm)))  & (is.na(values(new_ped)))   ] <- -1
+    diff[(is.na(values(mm)))  & (is.na(values(new_ped)))   ] <- NA
+    
+    color3 <- c(c_oldmap,c_overmap,c_newmap)
+    labels3 <- factor( c(as.character(languages$text_legend_1[LL]),
+                        as.character(languages$text_legend_2[LL]),
+                        as.character(languages$text_legend_3[LL]) ),
+                      levels=c(as.character(languages$text_legend_1[LL]),
+                               as.character(languages$text_legend_2[LL]),
+                               as.character(languages$text_legend_3[LL])))
+    layerName3 <- c(as.character(languages$text_layer_1[LL]),
+                    as.character(languages$text_layer_2[LL]),
+                    as.character(languages$text_layer_3[LL]) )
+    
+    c_diff <- colorFactor(palette= color3,
+                          domain=factor(c(-1,0,1)),
+                          na.color = "transparent")
+    
     new_map <- leaflet() %>%
       addTiles() %>%
       addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
@@ -165,28 +196,38 @@ shinyServer(function(input, output) {
                   opacity = 1, fillOpacity = 0) %>%
       addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
                        as.numeric(as.character(occ$Latitude)),
-                       color="black",
+                       color=c_oldocc,
                        radius=4,
                        opacity = 0.6) %>%
       addCircleMarkers(coordinates(new_occ)[,1], 
                        coordinates(new_occ)[,2],
-                       color="red",
+                       color=c_newocc,
                        radius=4,
                        opacity = 0.6) %>%
-      addRasterImage(new_ped, colors = "skyblue", opacity = 0.5)  %>%
-      setView(lng=-77,lat=-9,zoom=6)
+      addRasterImage(diff, colors = c_diff, opacity = 1, group = layerName3[2],project=F) %>%
+      addRasterImage(new_ped, colors = c_newmap, opacity = 0.7, group = layerName3[3],project=F)  %>%
+      addRasterImage(mm, colors = c_oldmap, opacity = 0.7, group = layerName3[1],project=F) %>%
+      addLegend(position="bottomleft",
+                pal = c_diff, 
+                values = labels3,
+                title = paste0(as.character(languages$text_legend_title[LL]),paste0(rep("&nbsp",49),collapse="")  )   )%>%
+      setView(lng=-77,lat=-9,zoom=6) %>%
+      addLayersControl(
+        overlayGroups = c(layerName3),
+        options = layersControlOptions(collapsed = FALSE)) %>%
+      hideGroup(layerName3[1:2])
     new_map
   })
   
   plot_click_normal <- eventReactive(input$runrunrun, {
     new_ped <- updatemap_click()
     new_occ <- loadocc_click()
-    plot(new_ped,col="skyblue" ,legend=FALSE,
-         xlab="Longitude", ylab="Latitude")
+    plot(new_ped,col=c_newmap ,legend=FALSE,
+         xlab=languages$text_lon1[LL], ylab=languages$text_lat1[LL])
     plot(Peru,add=T,col=NA,border="black")
     plot(IUCN,add=T,col=NA,border="green")
-    plot(occ,add=T,col="black")
-    plot(new_occ,add=T,col="red")
+    plot(occ,add=T,col=c_oldocc,pch=17,cex=1.5)
+    plot(new_occ,add=T,col=c_newocc,pch=17,cex=1.5)
   })
   
   output$newMap0 <- renderPlot({
@@ -198,32 +239,32 @@ shinyServer(function(input, output) {
   })
   
   output$originalMap <- renderPlot({ 
-    mm <- map_peru
+    mm <- paper_ped
     mm[mm<original_MTP] <- NA
-    plot(mm,col="skyblue" ,legend=FALSE,
-         xlab="Longitude", ylab="Latitude")
+    plot(mm,col=c_oldmap ,legend=FALSE,
+         xlab=languages$text_lon1[LL], ylab=languages$text_lat1[LL])
     plot(Peru,add=T,col=NA,border="black")
     plot(IUCN,add=T,col=NA,border="green")
-    plot(occ,add=T,col="black")
+    plot(occ,add=T,col=c_oldocc,pch=17,cex=1.5)
   })
   
   # default plot the old map
   output$originalMap_leaf <- renderLeaflet({
-    mm <- map_peru
+    mm <- paper_ped
     mm[mm<original_MTP] <- NA
     leaflet() %>%
       #addProviderTiles(providers$Esri.WorldImagery)%>%
       addTiles() %>%
-      addPolygons(data=Peru,color="black",weight = 1, smoothFactor = 0.5,
+      addPolygons(data=Peru,color=c_oldocc,weight = 1, smoothFactor = 0.5,
                   opacity = 1, fillOpacity = 0) %>%
       addPolygons(data=IUCN,color="green",weight = 1, smoothFactor = 0.5,
                   opacity = 1, fillOpacity = 0) %>%
       addCircleMarkers(as.numeric(as.character(occ$Longitude)), 
                        as.numeric(as.character(occ$Latitude)),
-                       color="black",
+                       color=c_oldocc,
                        radius=4,
                        opacity = 0.6) %>%
-      addRasterImage(mm, colors = "skyblue", opacity = 0.5) %>%
+      addRasterImage(mm, colors = c_oldmap, opacity = 0.7) %>%
       setView(lng=-77,lat=-9,zoom=6) 
     
   })
@@ -236,13 +277,13 @@ shinyServer(function(input, output) {
     p_all <- rbind(p_new,p)
     p_hull_new <- chull(p_all$bio1/10,p_all$bio12)
     nicheplot_new <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
-      geom_point(  colour = "gray",size=1    )  +
-      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="black" ) +
-      geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill="red" ) +
-      geom_point(aes(x=bio1/10,y=bio12),size=1,col="black",data=p)+
-      geom_point(aes(x=bio1/10,y=bio12),size=1,col="red",data=p_new)+
-      xlab("Annual mean temperature (°C)")+
-      ylab("Annual precipitation (mm)")+
+      geom_point(  colour = "gray",size=2    )  +
+      geom_polygon(data = p[p_hull,], alpha = 0.3,fill=c_oldocc ) +
+      geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill=c_newmap ) +
+      geom_point(aes(x=bio1/10,y=bio12),size=2,col=c_oldocc,data=p)+
+      geom_point(aes(x=bio1/10,y=bio12),size=2,col=c_newocc,data=p_new)+
+      xlab(languages$text_fig3_l1[LL])+
+      ylab(languages$text_fig3_l2[LL])+
       theme(legend.position="none")+
       theme(axis.text=element_text(size=18),
             axis.title=element_text(size=18,face="bold"),
@@ -253,11 +294,11 @@ shinyServer(function(input, output) {
   output$niche2d_old <- renderPlot({ 
     p_hull <- chull(p$bio1/10,p$bio12)
     nicheplot <- ggplot(aes(x=bio1/10,y=bio12),data=a)+
-      geom_point(  colour = "gray",size=1    )  +
-      geom_polygon(data = p[p_hull,], alpha = 0.3,fill="black" ) +
-      geom_point(aes(x=bio1/10,y=bio12),size=1,col="black",data=p)+
-      xlab("Annual mean temperature (°C)")+
-      ylab("Annual precipitation (mm)")+
+      geom_point(  colour = "gray",size=2    )  +
+      geom_polygon(data = p[p_hull,], alpha = 0.5,fill=c_oldocc ) +
+      geom_point(aes(x=bio1/10,y=bio12),size=2,col=c_oldocc,data=p)+
+      xlab(languages$text_fig3_l1[LL])+
+      ylab(languages$text_fig3_l2[LL])+
       theme(legend.position="none")+
       theme(axis.text=element_text(size=18),
             axis.title=element_text(size=18,face="bold"),

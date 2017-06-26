@@ -59,3 +59,24 @@ id,key,en,sp
 32,text_upload3,Choose CSV File,Elija Archivo CSV
 33,text_share5,I observed the species at ...,"Observé la especie en ...
 "
+34,text_tab3_leg1_2,The climatic niche from Feng et al. 2017:,El nicho climático de Feng et al. 2017:
+35,text_tab3_leg2_2,Your updated climatic niche:,Su nicho climático actualizado:
+36,text_fig3_l1,Annual mean temperature (°C),Temperatura media anual (°C)
+37,text_fig3_l2,Annual precipitation (mm),Precipitación anual (mm)
+38,text_lon1,Longitude,Longitud
+39,text_lat1,Latitude,Latitud
+40,text_legend_1,original prediction,Predicción original
+41,text_legend_2,overlapped area,Área superpuesta
+42,text_legend_3,updated prediction,Predicción actualizada
+43,text_layer_1,Layer(original prediction),Capa (predicción original)
+44,text_layer_2,Layer(difference),Capa (diferencia)
+45,text_layer_3,Layer(updated prediction),Capa (predicción actualizada)
+46,text_legend_title,Legend,Leyenda
+47,test_upload_1,Header,Encabezamiento
+48,test_upload_2,Separator,Separador
+49,test_upload_3,Comma,Coma
+50,test_upload_4,Semicolon,Punto y coma
+51,test_upload_5,Tab,Tab
+52,test_upload_6,Quote,Citar
+53,test_upload_7,Double Quote,Doble Citar
+54,test_upload_8,Single Quote,Soltero Citar
