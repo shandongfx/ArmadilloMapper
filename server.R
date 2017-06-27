@@ -139,11 +139,11 @@ shinyServer(function(input, output) {
     timestamp <- format(Sys.time(), "%Y%m%d_%H%M_")
     maxent_folder1 <- paste0(timestamp,"full")
     maxent_folder2 <- paste0(timestamp,"2nd")
-    fullM <- dismo::maxent(x=pder,p=pa,path=paste0("maxent_outputs/",maxent_folder1),args=c("responsecurves"))
+    fullM <- dismo::maxent(x=pder,p=pa,path=paste0(getwd(),"/maxent_outputs/",maxent_folder1),args=c("responsecurves"))
     # run 2nd model with fewer variables
     best_variables <- varContribution(fullM)
     selected <- filterVariables(layers=env_train,pre.var= best_variables,threshold=0.7 )
-    updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0("maxent_outputs/",maxent_folder2),args=c("responsecurves"))
+    updatedM <- dismo::maxent(x=pder[selected],p=pa,path=paste0(getwd(),"/maxent_outputs/",maxent_folder2),args=c("responsecurves"))
     updatedMap_clamp <- predict(env_peru,updatedM)
     new_map <- updatedMap_clamp
     predicted_occ_train <- extract(new_map,occ_unique)
