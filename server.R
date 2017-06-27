@@ -5,7 +5,7 @@ library(dismo)
 library(raster)
 library(sp)
 library(ggplot2)
-#library(rJava)
+library(rJava)
 
 # settings for uploading data
 options(shiny.maxRequestSize=30*1024^2) # upload size limited to 30MB
