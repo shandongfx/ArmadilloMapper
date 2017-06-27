@@ -1,0 +1,82 @@
+id,key,en,sp
+1,text_species,<em>Dasypus pilosus</em>,<em>Dasypus pilosus</em>
+2,text_title,<h1><em>Dasypus pilosus</em> potential distribution in Peru</h1>,<h1>Distribución potencial de <em>Dasypus pilosus</em> en Perú</h1>
+3,text_buttonupdate,Update map,Actualizar mapa
+4,text_please,Please provide your coordinates:,Por favor inserte sus coordenadas
+5,text_man,Manual input,Entrada manual
+6,text_batch,Batch input,Entrada en lotes
+7,text_lon,Longitude:,Longitud:
+8,text_lat,Latitude:,Latitud:
+9,text_contact1,Contact Xiao Feng [web] [email] for more information.,Contactar a Xiao Feng [web] [email] para más informaciones.
+10,text_contact1_html,"<h4>
+  <em>
+    Contact Xiao Feng
+    <a href=""http://www.fengxiao.info"">[web]</a>
+    <a href=""mailto:xiao.feng.armadillo@gmail.com"">[email]</a>
+    for more information.
+  </em>
+</h4>","<h4>
+  <em>
+   Contactar a Xiao Feng
+    <a href=""http://www.fengxiao.info"">[web]</a>
+    <a href=""mailto:xiao.feng.armadillo@gmail.com"">[email]</a>
+     para más informaciones.
+  </em>
+</h4>"
+11,text_tab1,Static map,Mapa estático
+12,text_tab2,Interactive map,Mapa interactivo
+13,text_tab3,Climatic niche,Nicho climático
+14,text_tab1_leg1,The potential distribution from Feng et al. 2017:,Distribución potencial según Feng et al. 2017
+15,text_tab1_leg2,Your updated potential distribution:,Su distribución potencial actualizada
+16,text_tab3_leg1,Red: climatic niche based on occurrence data from Feng et al. 2017,Rojo: nicho climático basado en los datos de ocurrencia de Feng et al. 2017
+17,text_tab3_leg2,Blue: climatic niche based on new occurrence data,Azul: nicho climático basado en los nuevos datos de ocurrencia
+18,text_ref,References:,Referencias:
+19,text_contact2,Not sure about the identification of the specimen? Please contact Mariela Castro [email].,Usted no está seguro acerca de la identificación del especimen? Por favor contacte a Mariela Castro [email]
+20,text_contact2_html,"<h4>
+  <em>
+    Not sure about the identification of the specimen? Please contact Mariela Castro 
+    <a href=""mailto:marielaccastro@yahoo.com.br"">[email]</a>
+    .
+  </em>
+</h4>","<h4>
+  <em>
+    Usted no está seguro acerca de la identificación del especimen? Por favor contacte a Mariela Castro
+    <a href=""mailto:marielaccastro@yahoo.com.br"">[email]</a>
+    .
+  </em>
+</h4>"
+21,text_note1,"Note: The potential distribution is made by Maxent algorithm (3.3.3k, MIT License).","Nota: La distribución potencial se realiza mediante el algoritmo Maxent (3.3.3k, Licencia MIT)."
+22,text_homepage,"<h5> <a href=""/users/fxiao/ArmadilloMapper_en/"">English </a> </h5>","<h5> <a href=""/users/fxiao/ArmadilloMapper_sp/"">Spanish </a> </h5>"
+23,text_pleaseshare,Please provide your detailed information:,Proporcione su información detallada:
+24,text_share1,Your name:,Tu nombre:
+25,text_share2,Email (*required):,Email (*necesario):
+26,text_share3,Locality description:,Descripción de la localidad:
+27,text_share4,"If you have more than one records, please upload any related files, e.g. occurrences data, photos, videos.","Si tiene más de un registro, por favor, cargue cualquier archivo relacionado, p. Datos de ocurrencias, fotos, videos."
+28,text_upload1,Choose Files,Seleccionar archivos
+29,text_upload2,No file chosen,Ningún archivo elegido
+30,text_sharebut,*Submit your data,* Envíe sus datos
+31,text_tabshare,Share data,Compartir datos
+32,text_upload3,Choose CSV File,Elija Archivo CSV
+33,text_share5,I observed the species at ...,"Observé la especie en ...
+"
+34,text_tab3_leg1_2,The climatic niche from Feng et al. 2017:,El nicho climático de Feng et al. 2017:
+35,text_tab3_leg2_2,Your updated climatic niche:,Su nicho climático actualizado:
+36,text_fig3_l1,Annual mean temperature (°C),Temperatura media anual (°C)
+37,text_fig3_l2,Annual precipitation (mm),Precipitación anual (mm)
+38,text_lon1,Longitude,Longitud
+39,text_lat1,Latitude,Latitud
+40,text_legend_1,original prediction,Predicción original
+41,text_legend_2,overlapped area,Área superpuesta
+42,text_legend_3,updated prediction,Predicción actualizada
+43,text_layer_1,Layer(original prediction),Capa (predicción original)
+44,text_layer_2,Layer(difference),Capa (diferencia)
+45,text_layer_3,Layer(updated prediction),Capa (predicción actualizada)
+46,text_legend_title,Legend,Leyenda
+47,text_upload_a1,Header,Encabezamiento
+48,text_upload_a2,Separator,Separador
+49,text_upload_a3,Comma,Coma
+50,text_upload_a4,Semicolon,Punto y coma
+51,text_upload_a5,Tab,Tab
+52,text_upload_a6,Quote,Citar
+53,text_upload_a7,Double Quote,Doble Citar
+54,text_upload_a8,Single Quote,Soltero Citar
