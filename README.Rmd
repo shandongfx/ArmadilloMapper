@@ -14,9 +14,9 @@ There are three ways to use AM.
 
 i) AM requires the following R packages *leaflet*, *shiny*, *dismo*, *raster*, *sp*, *rJava*, and *ggplot2* to be installed.
 ```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
-install.packages(c("leaflet","shiny","dismo","raster","sp","ggplot2"))
+install.packages(c("leaflet","shiny","dismo","raster","sp","ggplot2","rgeos","rJava"))
 ```
-AM relies on Maxent algorithm, thus user must put a copy of **maxent.jar** [(download)](https://github.com/mrmaxent/Maxent/tree/master/ArchivedReleases/3.3.3k) in a specific folder. Put the file 'maxent.jar' in the 'java' folder of *dismo* package. The folder can found by running **system.file("java", package="dismo")**. Please refer to more details of runing maxent in R by running **?dismo::maxent**
+AM relies on Maxent algorithm, thus user must put a copy of **maxent.jar** [(download)](https://github.com/mrmaxent/Maxent/tree/master/ArchivedReleases/3.3.3k) in a specific folder. Put the file 'maxent.jar' in the 'java' folder of *dismo* package. The folder can found by running **system.file("java", package="dismo")**. Additional, R and Java must both be under  32-bit or 64-bit (e.g., 32-bit R & 32-bit Java). Please refer to more details of runing maxent in R by running **?dismo::maxent**
 
 ```{r}
 library("leaflet")
@@ -25,12 +25,14 @@ library("dismo")
 library("raster")
 library("sp")
 library("ggplot2")
+library("rgeos")
+library("rJava")
 runGitHub("ArmadilloMapper", "shandongfx")
 ```
 
 
 
-
+# More details of the source code
 
 AM mainly relies on two R scripts: one draws the user interface and the other one implements the spatial analysis, model training, and distribution prediction on a server. The data analysis and map display rely on several R packages: dismo, raster, sp , and leaflet. 
 

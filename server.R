@@ -208,7 +208,10 @@ shinyServer(function(input, output) {
       addRasterImage(new_ped, colors = c_newmap, opacity = 0.7, group = layerName3[3],project=F)  %>%
       addRasterImage(mm, colors = c_oldmap, opacity = 0.7, group = layerName3[1],project=F) %>%
       addLegend(position="bottomleft",
-                pal = c_diff, 
+                #pal = c_diff, 
+                pal = colorFactor(palette= color3,
+                                  domain=labels3,
+                                  na.color = "transparent"),
                 values = labels3,
                 title = paste0(as.character(languages$text_legend_title[LL]),paste0(rep("&nbsp",49),collapse="")  )   )%>%
       setView(lng=-77,lat=-9,zoom=6) %>%
