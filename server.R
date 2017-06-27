@@ -25,7 +25,7 @@ load("raw_data_clean/env_peru")
 load("raw_data_clean/env_p")
 load("raw_data_clean/env_a")
 
-source("internalFunctions.R")
+source("internalFunctions.R",chdir = T)
 
 shinyServer(function(input, output) {
   
