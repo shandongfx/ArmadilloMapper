@@ -72,11 +72,11 @@ id,key,en,sp
 44,text_layer_2,Layer(difference),Capa (diferencia)
 45,text_layer_3,Layer(updated prediction),Capa (predicción actualizada)
 46,text_legend_title,Legend,Leyenda
-47,test_upload_1,Header,Encabezamiento
-48,test_upload_2,Separator,Separador
-49,test_upload_3,Comma,Coma
-50,test_upload_4,Semicolon,Punto y coma
-51,test_upload_5,Tab,Tab
-52,test_upload_6,Quote,Citar
-53,test_upload_7,Double Quote,Doble Citar
-54,test_upload_8,Single Quote,Soltero Citar
+47,text_upload_a1,Header,Encabezamiento
+48,text_upload_a2,Separator,Separador
+49,text_upload_a3,Comma,Coma
+50,text_upload_a4,Semicolon,Punto y coma
+51,text_upload_a5,Tab,Tab
+52,text_upload_a6,Quote,Citar
+53,text_upload_a7,Double Quote,Doble Citar
+54,text_upload_a8,Single Quote,Soltero Citar
