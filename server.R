@@ -285,7 +285,7 @@ shinyServer(function(input, output) {
       geom_polygon(data = p_all[p_hull_new,], alpha = 0.3,fill=c_newmap ) +
       geom_point(aes(x=bio1/10,y=bio12),size=2,col=c_oldocc,data=p)+
       geom_point(aes(x=bio1/10,y=bio12),size=2,col=c_newocc,data=p_new)+
-      xlab(languages$text_fig3_l1[LL])+
+      xlab(paste0(languages$text_fig3_l1[LL]," (°C)"))+
       ylab(languages$text_fig3_l2[LL])+
       theme(legend.position="none")+
       theme(axis.text=element_text(size=18),
@@ -300,7 +300,7 @@ shinyServer(function(input, output) {
       geom_point(  colour = "gray",size=2    )  +
       geom_polygon(data = p[p_hull,], alpha = 0.5,fill=c_oldocc ) +
       geom_point(aes(x=bio1/10,y=bio12),size=2,col=c_oldocc,data=p)+
-      xlab(languages$text_fig3_l1[LL])+
+      xlab(paste0(languages$text_fig3_l1[LL]," (°C)"))+
       ylab(languages$text_fig3_l2[LL])+
       theme(legend.position="none")+
       theme(axis.text=element_text(size=18),

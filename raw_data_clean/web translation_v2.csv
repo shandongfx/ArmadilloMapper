@@ -61,7 +61,7 @@ id,key,en,sp
 "
 34,text_tab3_leg1_2,The climatic niche from Feng et al. 2017:,El nicho climático de Feng et al. 2017:
 35,text_tab3_leg2_2,Your updated climatic niche:,Su nicho climático actualizado:
-36,text_fig3_l1,Annual mean temperature (°C),Temperatura media anual (°C)
+36,text_fig3_l1,Annual mean temperature,Temperatura media anual
 37,text_fig3_l2,Annual precipitation (mm),Precipitación anual (mm)
 38,text_lon1,Longitude,Longitud
 39,text_lat1,Latitude,Latitud
