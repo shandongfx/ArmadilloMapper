@@ -18,14 +18,13 @@ There are three ways to use AM.
 
 3.  If user wants to run AM locally (e.g., a personal Rstudio).
 
-<!-- -->
 
-1.  AM requires the following R packages *leaflet*, *shiny*, *dismo*,
+AM requires the R packages *leaflet*, *shiny*, *dismo*,
     *raster*, *sp*, *rJava*, and *ggplot2* to be installed.
 
-<!-- -->
-
+    ```r
     install.packages(c("leaflet","shiny","dismo","raster","sp","ggplot2","rgeos","rJava"))
+    ```
 
 1.  AM relies on Maxent algorithm, thus user must put a copy of
     **maxent.jar**
