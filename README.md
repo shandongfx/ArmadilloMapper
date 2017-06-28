@@ -49,7 +49,7 @@ There are three ways to use AM.
     library("rJava")
     runGitHub("ArmadilloMapper", "shandongfx")
 
-Overview of functions of folders and files
+Overview folders and files
 ------------------------------------------
 
 ArmadilloMapper/  
