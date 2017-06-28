@@ -56,6 +56,7 @@ ArmadilloMapper/
 ├── ui.R `draws the interface`  
 ├── server.R `implements all analysis`  
 ├── global.R `defines languages & colors`  
+├── internalFunctions.R            `defines functions for variable selection`   
 ├── raw\_data\_clean/ `stores data of Feng et al. (2017)`  
 ├── raw\_data\_clean/web translation\_v2.csv
 `stores strings of the interface (English/Spanish)`  
