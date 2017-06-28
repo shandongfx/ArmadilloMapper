@@ -1,3 +1,10 @@
+---
+title: "title"
+author: Xiao Feng
+date: June 27, 2017
+output: md_document
+---
+
 # Armadillo Mapper (v0.1.0)
 
 Armadillo Mapper (AM) is a web application that automatically updates the potential distribution of the hairy long-nosed armadillo (*Dasypus pilosus*), which is endemic to the cloud forest and subparamo habitats of Peru. Users could upload new observations of *D. pilosus* and AM will output the updated potential distribution made by [Maxent algorithm](version 3.3.3k; https://biodiversityinformatics.amnh.org/open_source/maxent/).
