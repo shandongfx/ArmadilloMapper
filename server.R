@@ -118,7 +118,8 @@ shinyServer(function(input, output) {
     cell <- cellFromXY(env[[1]], occ_all)
     dup <- duplicated(cell)
     occ_unique <- occ_all[!dup,]
-    training_shp <-  buffer(occ_unique,2)
+    crs(occ_unique) <- crs(occ)
+    training_shp <-  raster::buffer(occ_unique,2)
     prjExtent<- extent(training_shp) 
     prjExtent[1] <- -85
     prjExtent[2] <- -68

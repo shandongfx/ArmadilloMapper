@@ -35,12 +35,13 @@ filterVariables <- function(layers,pre.var= NULL,threshold ){
   #threshold=0.7
   #pre.var <- best_variables
   #layers <- bg_env
-  if( typeof(layers)=="list" ){
-    m <- abs(cor(layers))
-  } else{
+  #if( typeof(layers)=="list" ){
+  #  m <- abs(cor(layers))
+  #} else{
     cor.m <- layerStats(layers,stat="pearson",na.rm=T)  
     m <- abs( cor.m[[1]] )
-    m <- as.matrix(m)}
+    m <- as.matrix(m)
+	#}
   
   if (!is.null(pre.var) ){
     old.order <- colnames(m)

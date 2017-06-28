@@ -8,3 +8,5 @@ userUpload
 maxent_outputs/
 old_versions/
 log/
+README.html
+run_test.R
