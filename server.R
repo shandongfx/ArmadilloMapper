@@ -5,6 +5,7 @@ library(dismo)
 library(raster)
 library(sp)
 library(ggplot2)
+options( java.parameters = c("-Xss2560k", "-Xmx2g") ) #increase stack size of the JVM 
 library(rJava)
 
 # settings for uploading data
