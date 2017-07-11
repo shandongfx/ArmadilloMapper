@@ -164,15 +164,16 @@ shinyUI(fluidPage(
                              column(6,
                                     h4(languages$text_tab3_leg2_2[LL]),
                                     plotOutput("niche2d_new")
-                             )
-                    ),
-                    column(12,
-                           h4(languages$text_ref[LL]),
-                           h5("Castro et al. (2015) Reassessment of the hairy long-nosed armadillo",em("\"Dasypus\" pilosus"),"(Xenarthra, Dasypodidae) and revalidation of the genus", em("Cryptophractus"),"Fitzinger, 1856. Zootaxa, 3947, 30."),
-                           h5("Feng et al. (2017) Hiding in a Cool Climatic Niche in the Tropics? An Assessment of the Ecological Biogeography of Hairy Long-Nosed Armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, doi:10.1177/1940082917697249."),
-                           h5(languages$text_note1[LL])
                     )
+)
+                  ),
+                  column(12,
+                         h4(languages$text_ref[LL]),
+                         h5("Castro, M. C., Ciancio, M. R., Pacheco, V., Salas-Gismondi, R. M., Bostelmann, J. E., & Carlini, A. A. (2015). Reassessment of the hairy long-nosed armadillo",em("\"Dasypus\" pilosus"),"(Xenarthra, Dasypodidae) and revalidation of the genus Cryptophractus Fitzinger, 1856. Zootaxa, 3947, 30-48."),
+                         h5("Feng, X., Castro, M. C., McBee, K., & Papes, M. (2017). Hiding in a cool climatic niche in the Tropics? An assessment of the ecological biogeography of hairy long-nosed armadillos (",em("Dasypus pilosus"),"). Tropical Conservation Science, 10, 1-13."),
+                         h5(languages$text_note1[LL])
                   )
                 )
   )
+
 ))

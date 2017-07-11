@@ -5,11 +5,13 @@ library(dismo)
 library(raster)
 library(sp)
 library(ggplot2)
-options( java.parameters = c("-Xss2560k", "-Xmx2g") ) #increase stack size of the JVM 
+#enable this may prevent errors on a linux server 
+#options( java.parameters = c("-Xss2560k", "-Xmx2g") ) #increase stack size of the JVM 
 library(rJava)
 
 # settings for uploading data
 options(shiny.maxRequestSize=30*1024^2) # upload size limited to 30MB
+if(!file.exists("userUpload")) dir.create("userUpload")
 user_path <- paste("userUpload/",format(Sys.time(), "%Y%b%d%H%M"),"",sep="")
 user_txt <- file(paste0(user_path,"/user_info.txt"))
 
