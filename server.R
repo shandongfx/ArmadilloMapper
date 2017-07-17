@@ -5,10 +5,10 @@ library(dismo)
 library(raster)
 library(sp)
 library(ggplot2)
-library(mailR)
 #enable this may prevent errors on a linux server 
 #options( java.parameters = c("-Xss2560k", "-Xmx2g") ) #increase stack size of the JVM 
 library(rJava)
+library(mailR)
 
 # settings for uploading data
 options(shiny.maxRequestSize=30*1024^2) # upload size limited to 30MB
@@ -373,7 +373,6 @@ shinyServer(function(input, output) {
                   authenticate = TRUE,
                   html = TRUE,
                   send = TRUE)
-      })
-    })  
-    
+      })  }) 
+
 })
