@@ -364,6 +364,7 @@ shinyServer(function(input, output) {
                   to = "xiao.feng.armadillo@gmail.com",
                   subject = "Share_occ_data",
                   body = outtext,
+                  attach.files = list.files(user_path,full.names = T),
                   smtp = list(host.name = "smtp.gmail.com",
                               port = 465, 
                               user.name = "xiao.feng.armadillo@gmail.com", 
