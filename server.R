@@ -8,6 +8,7 @@ library(ggplot2)
 #enable this may prevent errors on a linux server 
 #options( java.parameters = c("-Xss2560k", "-Xmx2g") ) #increase stack size of the JVM 
 library(rJava)
+library(mailR)
 
 # settings for uploading data
 options(shiny.maxRequestSize=30*1024^2) # upload size limited to 30MB
@@ -349,4 +350,28 @@ shinyServer(function(input, output) {
     checkocc_click <- eventReactive(input$subsubsub, {
         validate(isValidEmail(input$submit_email) )
     })
+    
+    observeEvent(input$subsubsub,{
+      isolate({
+        outtext <- paste(input$submit_name,
+                         input$submit_email,
+                         input$submit_loca,
+                         input$submit_longitude,
+                         input$submit_latitude,
+                         sep="\n")
+        
+        send.mail(from = "xiao.feng.armadillo@gmail.com",
+                  to = "xiao.feng.armadillo@gmail.com",
+                  subject = "Share_occ_data",
+                  body = outtext,
+                  attach.files = list.files(user_path,full.names = T),
+                  smtp = list(host.name = "smtp.gmail.com",
+                              port = 465, 
+                              user.name = "xiao.feng.armadillo@gmail.com", 
+                              passwd = "your passwork",
+                              ssl = TRUE),
+                  authenticate = TRUE,
+                  html = TRUE,
+                  send = TRUE)
+      })  }) 
 })
