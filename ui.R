@@ -20,6 +20,7 @@ shinyUI(fluidPage(
                   actionButton("runrunrun", label = languages$text_buttonupdate[LL] ),#"Update map"),
                   #helpText("Be patient after click this button."),
                   
+                  #actionButton("mailButton", label = "email to me"),
                   
                   h2(textOutput("error")),
                   

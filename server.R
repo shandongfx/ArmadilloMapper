@@ -5,6 +5,7 @@ library(dismo)
 library(raster)
 library(sp)
 library(ggplot2)
+library(mailR)
 #enable this may prevent errors on a linux server 
 #options( java.parameters = c("-Xss2560k", "-Xmx2g") ) #increase stack size of the JVM 
 library(rJava)
@@ -349,4 +350,29 @@ shinyServer(function(input, output) {
     checkocc_click <- eventReactive(input$subsubsub, {
         validate(isValidEmail(input$submit_email) )
     })
+    
+    observeEvent(input$subsubsub,{
+      isolate({
+        outtext <- paste(input$submit_name,
+                         input$submit_email,
+                         input$submit_loca,
+                         input$submit_longitude,
+                         input$submit_latitude,
+                         sep="\n")
+        
+        send.mail(from = "xiao.feng.armadillo@gmail.com",
+                  to = "xiao.feng.armadillo@gmail.com",
+                  subject = "Share_occ_data",
+                  body = outtext,
+                  smtp = list(host.name = "smtp.gmail.com",
+                              port = 465, 
+                              user.name = "xiao.feng.armadillo@gmail.com", 
+                              passwd = "your password",
+                              ssl = TRUE),
+                  authenticate = TRUE,
+                  html = TRUE,
+                  send = TRUE)
+      })
+    })  
+    
 })
