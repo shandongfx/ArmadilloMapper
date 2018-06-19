@@ -169,9 +169,9 @@ shinyServer(function(input, output) {
     diff <- env_peru[[1]]
     values(diff) <- NA
     
-    mm <- leaflet::projectRasterForLeaflet(mm)
-    new_ped <- leaflet::projectRasterForLeaflet(new_ped)
-    diff <- leaflet::projectRasterForLeaflet(diff)
+    mm <- leaflet::projectRasterForLeaflet(mm,method='ngb')
+    new_ped <- leaflet::projectRasterForLeaflet(new_ped,method='ngb')
+    diff <- leaflet::projectRasterForLeaflet(diff,method='ngb')
     
     diff[(!is.na(values(mm)))  & (!is.na(values(new_ped)))   ] <- 0
     diff[(is.na(values(mm)))  & (!is.na(values(new_ped)))   ] <- 1
