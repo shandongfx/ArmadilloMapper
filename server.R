@@ -123,7 +123,7 @@ shinyServer(function(input, output) {
     dup <- duplicated(cell)
     occ_unique <- occ_all[!dup,]
     crs(occ_unique) <- crs(occ)
-    training_shp <-  raster::buffer(occ_unique,2)
+    training_shp <-  raster::buffer(occ_unique,width=200000) # the default unit was degree in previous raster package, now it is meter.
     prjExtent<- extent(training_shp) 
     prjExtent[1] <- -85
     prjExtent[2] <- -68
